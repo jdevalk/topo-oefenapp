@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{
   --bg:#FFF8E8; --bg2:#EAF6F1; --card:#FFFFFF; --ink:#1A2E28; --muted:#5B6B64;
@@ -127,26 +128,19 @@ a{color:var(--teal)}
 .result p{color:var(--muted);font-weight:800;line-height:1.6;max-width:520px;margin:10px auto}
 .mistakes{text-align:left;max-width:560px;margin:16px auto;background:var(--bg);border:1.5px solid var(--border);border-radius:16px;padding:14px 16px}
 .mistakes li{font-weight:800;margin:6px 0}
-/* MAP */
-.map-wrap{background:linear-gradient(180deg,#BFE6EF,#A8D8E8);border:1.5px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.04)}
-.map-wrap svg{display:block;width:100%;height:auto}
-.mk{cursor:pointer}
-.mk .hit{fill:transparent;stroke:none}
-.mk .dot{fill:#fff;stroke:var(--teal);stroke-width:2.5;filter:drop-shadow(0 2px 2px rgba(23,54,66,.35));transform-box:fill-box;transform-origin:center;transition:transform .15s ease}
-.mk:hover .dot{transform:scale(1.18)}
-@media(prefers-reduced-motion:reduce){.mk .dot{transition:none}.mk:hover .dot{transform:none}}
-.mk text{font-family:"Fredoka",sans-serif;font-weight:700;fill:var(--ink);text-anchor:middle;pointer-events:none}
-.mk.letter .dot{fill:var(--coral);stroke:#fff}
-.mk.letter text{fill:#fff}
-.mk.water .dot{fill:#2B7FFF;stroke:#fff}
-.mk.water text{fill:#fff}
-.mk.nature .dot{fill:#E9B949;stroke:#fff}
-.mk.sel .dot{stroke:var(--ink);stroke-width:4}
-.mk.found .dot{fill:var(--green);stroke:#fff}
-.mk.found text{fill:#fff}
-.mk.wrong .dot{fill:var(--red);stroke:#fff}
-.mk.wrong text{fill:#fff}
-.mk.reveal .dot{fill:var(--yellow);stroke:var(--ink);stroke-width:3.5}
+/* MAP real Leaflet */
+.global-map{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:12px;box-shadow:var(--shadow);margin:0 0 18px}
+.global-map-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;margin:2px 4px 10px}
+.global-map-head h2{font-size:20px}
+.global-map-head p{margin:0;color:var(--muted);font-weight:800;font-size:13.5px}
+#leafletMap{height:430px;width:100%;border-radius:14px;overflow:hidden;background:#AAD3DF;z-index:0}
+@media(max-width:640px){#leafletMap{height:340px}}
+.leaflet-container{font-family:"Nunito",sans-serif}
+.topo-pin{display:grid;place-items:center;border-radius:999px;font-family:"Fredoka",sans-serif;font-weight:700;color:#fff;background:#0E7C6B;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.topo-pin.pin-letter{background:#FB6F4C}.topo-pin.pin-water{background:#2B7FFF}.topo-pin.pin-nature{background:#E9B949;color:#231a00}
+.topo-dot{border-radius:999px;background:#0E7C6B;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.45)}
+.topo-dot.dot-letter{background:#FB6F4C}.topo-dot.dot-water{background:#2B7FFF}.topo-dot.dot-nature{background:#E9B949}
+.topo-dot.dot-found{background:#2FB457 !important}.topo-dot.dot-wrong{background:#E94F37 !important}.topo-dot.dot-reveal{background:#FFB703 !important;border-color:#1A2E28}
 .map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:13px;font-weight:800;color:var(--muted)}
 .map-legend span{display:inline-flex;align-items:center;gap:6px}
 .lg{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;font-size:11px;font-family:"Fredoka";font-weight:700;color:#fff;background:var(--teal)}
@@ -162,7 +156,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
 <div class="wrap">
   <header class="hero">
     <h1>Topo oefenen <span>voor Borre</span> 🌍</h1>
-    <p>Leer alle plekken van je wereldkaart: werelddelen, landen, steden, oceanen, rivieren en bergen. De kaart uit de klas is nagebouwd — bekijk hem, klik op de nummers en letters, of speel het kaartspel. Kies hoe je wilt oefenen!</p>
+    <p>Leer alle plekken van je wereldkaart: werelddelen, landen, steden, oceanen, rivieren en bergen. Hieronder staat altijd een echte kaart van de wereld. In Leren zie je alle letters en nummers op de kaart; in de spelletjes staan er alleen stippen, zodat de kaart het antwoord niet verraadt. Kies hoe je wilt oefenen!</p>
     <div class="hero-stats">
       <span class="stat"><b>35</b> plekken in totaal</span>
       <span class="stat"><b>A t/m G</b> werelddelen</span>
@@ -180,12 +174,16 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
 
   <div class="chips" id="catChips" role="group" aria-label="Filter op soort"></div>
 
+  <section class="global-map" aria-label="Wereldkaart">
+    <div class="global-map-head"><h2>🌍 De echte wereldkaart</h2><p id="globalMapModeHint">Alle 35 plekken met letter of nummer. Klik op een marker!</p></div>
+    <div id="leafletMap" role="application" aria-label="Interactieve wereldkaart"></div>
+    <div class="map-legend"><span><span class="lg letter">A</span> Werelddeel</span><span><span class="lg">1</span> Land / stad</span><span><span class="lg water">~</span> Oceaan / rivier</span><span><span class="lg nature">▲</span> Gebergte / woestijn / regio</span><span style="margin-left:auto">Kaart: © OpenStreetMap-bijdragers</span></div>
+    <div class="map-info" id="globalMapInfo">👆 Klik op een letter of nummer op de kaart!</div>
+  </section>
+
   <!-- LEARN -->
   <section class="panel active" id="panel-learn">
-    <div class="section-head"><div><h2>De kaart — net als in de klas</h2><p>Dit is de wereldkaart van je topo, nagebouwd. Klik op een letter of nummer om te zien welke plek het is. Israël (7) staat in het vergrote rondje, net als op de echte kaart!</p></div></div>
-    <div class="map-wrap" id="mapLearn"></div>
-    <div class="map-legend"><span><span class="lg letter">A</span> Werelddeel</span><span><span class="lg">1</span> Land</span><span><span class="lg water">~</span> Oceaan / rivier</span><span><span class="lg nature">▲</span> Gebergte / woestijn / regio</span></div>
-    <div class="map-info" id="learnMapInfo">👆 Klik op een letter of nummer op de kaart!</div>
+    <div class="section-head"><div><h2>Alle plekken leren</h2><p>De echte kaart hierboven toont alle 35 plekken met hun letter of nummer. Klik op een marker op de kaart om de naam en tip te zien, of kijk in de lijst hieronder.</p></div></div>
     <div class="section-head" style="margin-top:26px"><div><h2>Alle plekken op een rij</h2><p>Klik op een filter hierboven of scroll gewoon door. De tip helpt je de plek te onthouden.</p></div></div>
     <div class="learn-grid" id="learnGrid"></div>
   </section>
@@ -284,9 +282,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
         <button class="chip" id="btnMapPlay">🎯 Speel: vind de plek!</button>
       </div>
       <div id="mapExploreBox">
-        <div class="big-question" style="padding-top:0"><h2>Ontdek de kaart</h2><p>Klik op een letter of nummer en ontdek welke plek het is.</p></div>
-        <div class="map-wrap" id="mapMain"></div>
-        <div class="map-info" id="mainMapInfo">👆 Klik op een letter of nummer op de kaart!</div>
+        <div class="big-question" style="padding-top:0"><h2>Ontdek de kaart</h2><p>Klik op een letter of nummer op de echte kaart hierboven en ontdek welke plek het is.</p></div>
       </div>
       <div id="mapPlayBox" style="display:none">
         <div class="scorebar">
@@ -294,8 +290,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
           <span class="score-pill">Goed: <b id="mqGood">0</b></span>
         </div>
         <div class="progress"><i id="mqBar" style="width:0%"></i></div>
-        <div class="big-question" style="padding-top:0"><h2 id="mqQ">Waar ligt: …?</h2><p>Klik op de goede letter of het goede nummer op de kaart.</p></div>
-        <div class="map-wrap" id="mapPlay"></div>
+        <div class="big-question" style="padding-top:0"><h2 id="mqQ">Waar ligt: …?</h2><p>Klik op de goede stip op de echte kaart hierboven. Er staan expres geen letters of nummers op de stippen!</p></div>
         <div class="feedback" id="mqFeedback" style="max-width:640px;margin-left:auto;margin-right:auto"></div>
         <div class="btn-row">
           <button class="btn btn-primary" id="btnNextMq" style="display:none">Volgende →</button>
@@ -312,9 +307,10 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
     </div>
   </section>
 
-  <footer>Gebaseerd op de topo-kaart uit de klas: A t/m G en 1 t/m 28. Oefen elke dag een klein stukje — 10 vragen is al genoeg! Veel succes, Borre! 🍀</footer>
+  <footer>Topo: A t/m G en 1 t/m 28, op een echte wereldkaart (OpenStreetMap). Oefen elke dag een klein stukje — 10 vragen is al genoeg! Veel succes, Borre! 🍀</footer>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 var ITEMS = [
  {code:"A",name:"Noord-Amerika",cat:"werelddelen",hint:"Het werelddeel boven Zuid-Amerika, met de Verenigde Staten, Mexico en Canada.",type:"letter"},
@@ -386,7 +382,7 @@ function renderChips(){
     var n = c.id==="all" ? ITEMS.length : ITEMS.filter(function(i){return i.cat===c.id;}).length;
     return '<button class="chip'+(currentCat===c.id?" active":"")+'" data-cat="'+c.id+'">'+c.label+' <small>'+n+'</small></button>';
   }).join("");
-  chipsEl.querySelectorAll(".chip").forEach(function(b){ b.addEventListener("click", function(){ currentCat=b.dataset.cat; renderChips(); renderLearn(); resetFlash(); startQuiz(); startType(); renderMaps(); if(currentMode==="map"&&mapSub==="speel") startMapQuiz(); }); });
+  chipsEl.querySelectorAll(".chip").forEach(function(b){ b.addEventListener("click", function(){ currentCat=b.dataset.cat; renderChips(); renderLearn(); resetFlash(); startQuiz(); startType(); renderMap(); if(currentMode==="map"&&mapSub==="speel") startMapQuiz(); }); });
 }
 
 /* LEARN */
@@ -408,7 +404,8 @@ function switchMode(m){
   if(m==="flash") resetFlash();
   if(m==="quiz") startQuiz();
   if(m==="type") startType();
-  if(m==="map"){ renderMaps(); if(mapSub==="speel") startMapQuiz(); }
+  renderMap(); if(window._leafletMap){ setTimeout(function(){ window._leafletMap.invalidateSize(); },80); }
+  if(m==="map"){ if(mapSub==="speel") startMapQuiz(); }
 }
 document.querySelectorAll(".mode-btn").forEach(function(b){ b.addEventListener("click", function(){ switchMode(b.dataset.mode); }); });
 
@@ -472,13 +469,14 @@ function showQuizQ(){
   document.getElementById("quizGood").textContent=quizGood;
   document.getElementById("quizStreak").textContent=quizStreak+" 🔥";
   document.getElementById("quizBar").style.width=Math.round((quizIdx/quizList.length)*100)+"%";
-  var codeEl=document.getElementById("quizCode"); codeEl.textContent=it.code; codeEl.className="big-code"+(it.type==="letter"?" letter":"");
+  var codeEl=document.getElementById("quizCode");
   // Alternate direction: even = code -> name, odd = name -> code description via hint? Keep code->name mostly, sometimes reverse with options as codes
   var reverse = (quizIdx%3===2);
   var fb=document.getElementById("quizFeedback"); fb.className="feedback"; fb.textContent="";
   document.getElementById("btnNextQ").style.display="none";
   var optsEl=document.getElementById("quizOptions");
   if(!reverse){
+    codeEl.textContent=it.code; codeEl.className="big-code"+(it.type==="letter"?" letter":"");
     document.getElementById("quizQ").textContent = it.type==="letter" ? "Welk werelddeel hoort bij letter "+it.code+"?" : "Welke plek hoort bij nummer "+it.code+"?";
     document.getElementById("quizHint").textContent = "Kies het goede antwoord. Tip verstopt: denk aan de plek op de kaart!";
     var distract = shuffle(ITEMS.filter(function(x){return x.code!==it.code && x.cat===it.cat;})).slice(0,3);
@@ -489,6 +487,7 @@ function showQuizQ(){
     }).join("");
     optsEl.querySelectorAll(".opt").forEach(function(btn){ btn.addEventListener("click", function(){ answerQuiz(btn, it, btn.dataset.code===it.code); }); });
   } else {
+    codeEl.textContent="?"; codeEl.className="big-code";
     document.getElementById("quizQ").textContent="Bij welk nummer / welke letter hoort: "+it.name+"?";
     document.getElementById("quizHint").textContent=it.hint;
     var distract2 = shuffle(ITEMS.filter(function(x){return x.code!==it.code && x.cat===it.cat;})).slice(0,3);
@@ -578,102 +577,58 @@ function finishType(){
   if(typeMistakes.length){ box.style.display="block"; document.getElementById("typeMistakesList").innerHTML=typeMistakes.map(function(m){return "<li>"+m.code+" — "+m.name+"</li>";}).join(""); } else box.style.display="none";
 }
 
-/* MAP — de kaart uit de klas, nagebouwd als SVG */
-var POS = {
- "A":[222,125],"B":[542,105],"C":[760,120],"D":[330,330],"E":[548,262],"F":[946,404],"G":[500,508],
- "1":[228,148],"2":[214,196],"3":[600,146],"4":[795,168],"5":[888,148],"6":[716,206],"7":[600,172],
- "8":[800,300],"9":[346,256],"10":[360,300],"11":[322,382],"12":[484,168],"13":[584,184],"14":[868,344],
- "15":[296,140],"16":[824,142],"17":[500,20],"18":[415,222],"19":[746,196],"20":[80,268],
- "21":[330,282],"22":[590,208],"23":[706,332],"24":[188,132],"25":[736,180],"26":[308,332],
- "27":[530,200],"28":[628,180]
+/* MAP - echte kaart Leaflet + OpenStreetMap */
+var COORDS = {
+ "A":[54.5,-102],"B":[50.5,15],"C":[49,88],"D":[-14,-62],"E":[6,20],"F":[-27,152],"G":[-82,0],
+ "1":[39.8,-98.5],"2":[23.6,-102.5],"3":[39,35.2],"4":[35.8,104.2],"5":[36.2,138.3],"6":[21,78.9],"7":[31,34.9],
+ "8":[-2.2,118],"9":[3.9,-56],"10":[-10.8,-52.9],"11":[-35.4,-65.2],"12":[31.8,-6.5],"13":[26.8,30.8],"14":[-25.3,133.8],
+ "15":[40.7,-74],"16":[39.9,116.4],"17":[82,0],"18":[8,-32],"19":[25.3,83],"20":[-6,-145],
+ "21":[-3.1,-60],"22":[22,31.5],"23":[-22,82],"24":[43.8,-110.7],"25":[28.6,84.1],"26":[-22,-68.5],
+ "27":[23.4,12.6],"28":[29.5,44]
 };
-var POS_EXTRA = { "20":[[972,306]] };
-var LAND_STROKE = ' stroke="#6E9279" stroke-opacity=".5" stroke-width="2" stroke-linejoin="round"';
-var MAP_ART = ''
-/* --- land: herkenbare, vloeiende continentvormen --- */
-+ '<path d="M34 132 C38 100 52 72 82 54 C118 36 172 28 226 32 C266 35 296 46 306 60 C298 74 284 84 276 96 C284 110 290 122 282 134 C296 128 314 118 326 112 C342 128 336 150 318 162 C306 172 296 182 292 196 C300 206 296 220 284 222 C268 220 252 206 244 196 C236 208 232 220 226 232 C240 224 252 228 254 238 C244 250 228 252 216 244 C204 228 196 212 192 196 C188 178 178 168 160 166 C138 172 116 168 96 156 C72 146 48 140 34 132 Z" fill="#F8C8B4"'+LAND_STROKE+'/>'
-+ '<path d="M300 44 C322 30 356 30 372 46 C382 58 376 76 356 84 C334 92 310 84 300 68 C294 58 294 50 300 44 Z" fill="#FFFFFF"'+LAND_STROKE+'/>'
-+ '<path d="M262 252 C285 238 320 240 348 254 C378 268 392 292 388 318 C384 344 362 362 344 384 C330 402 326 428 322 452 C320 466 310 470 304 458 C296 436 292 404 288 372 C284 338 272 306 262 282 C256 268 256 258 262 252 Z" fill="#BFE0A8"'+LAND_STROKE+'/>'
-+ '<path d="M486 142 C472 140 464 128 468 112 C471 99 480 92 492 90 C504 80 516 74 528 76 C524 62 530 46 544 38 C560 30 578 36 580 50 C582 62 572 72 560 76 C574 84 588 84 598 94 C606 104 602 118 592 124 C596 134 592 144 582 148 C574 140 562 138 552 142 C540 146 520 146 486 142 Z" fill="#A9D6A5"'+LAND_STROKE+'/>'
-+ '<path d="M540 114 C550 122 560 132 568 142 C560 150 548 146 542 136 C536 128 536 118 540 114 Z" fill="#A9D6A5"'+LAND_STROKE+'/>'
-+ '<path d="M462 78 C456 64 462 50 474 48 C486 46 492 58 488 70 C484 82 468 88 462 78 Z" fill="#A9D6A5"'+LAND_STROKE+'/>'
-+ '<ellipse cx="446" cy="74" rx="9" ry="7" fill="#A9D6A5"'+LAND_STROKE+'/>'
-+ '<path d="M470 178 C478 162 500 154 528 152 C566 150 604 156 624 168 C634 176 636 188 630 200 C644 214 650 232 644 250 C638 264 624 268 612 260 C610 286 600 314 584 338 C570 360 552 372 538 362 C524 350 514 326 504 302 C490 272 476 238 470 210 C466 196 466 186 470 178 Z" fill="#F7DC8F"'+LAND_STROKE+'/>'
-+ '<ellipse cx="624" cy="324" rx="10" ry="22" fill="#F7DC8F" transform="rotate(18 624 324)"'+LAND_STROKE+'/>'
-+ '<path d="M622 146 C630 112 656 78 700 58 C752 34 830 26 898 34 C946 40 972 60 976 84 C979 106 966 124 944 132 C934 142 930 154 934 166 C924 186 902 198 880 196 C872 208 862 218 850 220 C846 238 830 252 812 258 C800 268 792 278 788 290 C784 300 776 302 772 292 C768 278 764 262 756 248 C748 234 742 220 742 206 C736 222 728 242 718 256 C708 268 700 258 694 238 C686 216 680 202 668 196 C650 190 636 196 628 208 C638 220 640 232 632 242 C618 250 602 244 596 228 C590 210 590 190 596 168 C598 158 608 150 622 146 Z" fill="#F9EDBE"'+LAND_STROKE+'/>'
-+ '<path d="M590 140 C602 134 618 136 626 144 C620 154 604 158 594 152 C588 148 586 144 590 140 Z" fill="#F9EDBE"'+LAND_STROKE+'/>'
-+ '<ellipse cx="884" cy="158" rx="7" ry="12" fill="#F9EDBE" transform="rotate(30 884 158)"'+LAND_STROKE+'/>'
-+ '<ellipse cx="899" cy="139" rx="6" ry="11" fill="#F9EDBE" transform="rotate(35 899 139)"'+LAND_STROKE+'/>'
-+ '<ellipse cx="915" cy="121" rx="6" ry="10" fill="#F9EDBE" transform="rotate(40 915 121)"'+LAND_STROKE+'/>'
-+ '<ellipse cx="929" cy="105" rx="5" ry="8" fill="#F9EDBE" transform="rotate(45 929 105)"'+LAND_STROKE+'/>'
-+ '<ellipse cx="742" cy="280" rx="20" ry="7" fill="#F9EDBE" transform="rotate(38 742 280)"'+LAND_STROKE+'/>'
-+ '<ellipse cx="818" cy="280" rx="17" ry="13" fill="#F9EDBE"'+LAND_STROKE+'/>'
-+ '<ellipse cx="790" cy="306" rx="24" ry="6" fill="#F9EDBE"'+LAND_STROKE+'/>'
-+ '<ellipse cx="852" cy="286" rx="10" ry="8" fill="#F9EDBE"'+LAND_STROKE+'/>'
-+ '<ellipse cx="912" cy="290" rx="26" ry="9" fill="#F9EDBE"'+LAND_STROKE+'/>'
-+ '<circle cx="716" cy="262" r="4" fill="#F9EDBE"/><circle cx="852" cy="252" r="4" fill="#F9EDBE"/><circle cx="866" cy="238" r="3.5" fill="#F9EDBE"/>'
-+ '<path d="M798 336 C792 310 806 292 834 286 C868 279 908 285 930 302 C946 315 948 338 936 356 C922 376 892 388 858 386 C826 384 803 362 798 336 Z" fill="#BFE0A8"'+LAND_STROKE+'/>'
-+ '<ellipse cx="922" cy="398" rx="8" ry="6" fill="#BFE0A8"'+LAND_STROKE+'/>'
-+ '<ellipse cx="950" cy="398" rx="13" ry="6" fill="#BFE0A8" transform="rotate(38 950 398)"'+LAND_STROKE+'/>'
-+ '<ellipse cx="968" cy="416" rx="11" ry="5" fill="#BFE0A8" transform="rotate(38 968 416)"'+LAND_STROKE+'/>'
-+ '<path d="M0 492 C120 478 240 492 360 484 C480 476 600 490 720 482 C840 474 940 486 1000 480 L1000 560 L0 560 Z" fill="#FFFFFF" stroke="#A9CCE0" stroke-width="2"/>'
-/* --- Sahara --- */
-+ '<path d="M472 196 C480 176 512 166 548 168 C584 170 612 180 618 196 C612 212 580 220 544 220 C508 220 480 212 472 196 Z" fill="#F0BE4E" opacity=".8"/>'
-/* --- gebergten als bergtopjes --- */
-+ '<path d="M164 152 L178 122 L192 152 Z M184 156 L200 124 L216 156 Z M172 134 L184 110 L196 134 Z" fill="#D9A05B" stroke="#B97F35" stroke-width="1.5" stroke-linejoin="round"/>'
-+ '<path d="M292 300 L302 278 L312 300 Z M296 336 L306 312 L316 336 Z M300 372 L310 348 L320 372 Z M302 408 L312 384 L322 408 Z M304 442 L313 420 L322 442 Z" fill="#D9A05B" stroke="#B97F35" stroke-width="1.5" stroke-linejoin="round"/>'
-+ '<path d="M700 190 L712 168 L724 190 Z M720 192 L734 166 L748 192 Z M742 190 L754 170 L766 190 Z" fill="#D9A05B" stroke="#B97F35" stroke-width="1.5" stroke-linejoin="round"/>'
-/* --- rivieren --- */
-+ '<path d="M588 258 C586 238 590 222 586 204 C584 196 585 190 587 184" fill="none" stroke="#2F7FD0" stroke-width="3.5" stroke-linecap="round"/>'
-+ '<path d="M296 288 C318 282 344 288 372 282" fill="none" stroke="#2F7FD0" stroke-width="3.5" stroke-linecap="round"/>'
-+ '<path d="M724 214 C736 206 748 200 762 194" fill="none" stroke="#2F7FD0" stroke-width="3.5" stroke-linecap="round"/>'
-/* --- regio Midden-Oosten --- */
-+ '<path d="M600 150 L662 150 C670 150 676 156 676 164 L676 194 C676 202 670 208 662 208 L604 208 C596 208 592 202 592 194 L592 158 C592 152 594 150 600 150 Z" fill="rgba(142,111,184,.10)" stroke="#8E6FB8" stroke-width="2.5" stroke-dasharray="6 4"/>'
-/* --- kompas --- */
-+ '<g transform="translate(64 428)"><circle r="17" fill="rgba(255,255,255,.7)" stroke="#7A8B84" stroke-width="1.5"/><path d="M0 -13 L3.5 0 L0 13 L-3.5 0 Z" fill="#E94F37"/><path d="M-13 0 L0 3.5 L13 0 L0 -3.5 Z" fill="#7A8B84"/><text y="-22" font-family="Fredoka" font-weight="700" font-size="12" fill="#47615A" text-anchor="middle">N</text></g>'
-/* --- Israël vergroot, net als op de echte kaart --- */
-+ '<line x1="594" y1="182" x2="478" y2="298" stroke="#7A8B84" stroke-width="2"/>'
-+ '<circle cx="448" cy="308" r="34" fill="#FFFBEF" stroke="#7A8B84" stroke-width="2"/>'
-+ '<path d="M434 284 C444 280 458 283 463 293 C467 302 463 315 453 323 C443 329 431 324 429 312 C427 300 428 288 434 284 Z" fill="#F9EDBE" stroke="#C9BC7E" stroke-width="1.5"/>'
-+ '<path d="M452 290 C450 300 452 310 449 318" fill="none" stroke="#2F7FD0" stroke-width="2" stroke-linecap="round"/>'
-+ '<circle cx="440" cy="302" r="3.5" fill="#E94F37"/>'
-+ '<text x="448" y="356" font-family="Fredoka" font-weight="700" font-size="15" fill="#1A2E28" text-anchor="middle">7</text>';
-function markerSVG(it, scope){
-  var p = POS[it.code]; if(!p) return "";
-  var cls = "mk" + (it.type==="letter" ? " letter" : it.cat==="water" ? " water" : it.cat==="natuur" ? " nature" : "");
-  var r = it.type==="letter" ? 16 : 14, fs = it.type==="letter" ? 15 : 13;
-  var s = '<g class="'+cls+'" data-code="'+it.code+'" data-scope="'+scope+'"><circle class="hit" cx="'+p[0]+'" cy="'+p[1]+'" r="25"/><circle class="dot" cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'"/><text x="'+p[0]+'" y="'+(p[1]+fs/2-1)+'">'+it.code+'</text></g>';
-  if(POS_EXTRA[it.code]){ POS_EXTRA[it.code].forEach(function(q){ s += '<g class="'+cls+'" data-code="'+it.code+'" data-scope="'+scope+'"><circle class="hit" cx="'+q[0]+'" cy="'+q[1]+'" r="25"/><circle class="dot" cx="'+q[0]+'" cy="'+q[1]+'" r="'+r+'"/><text x="'+q[0]+'" y="'+(q[1]+fs/2-1)+'">'+it.code+'</text></g>'; }); }
-  return s;
+var leafletMap=null, markerLayer=null, mqHighlight={};
+function pinClass(it){ return it.type==="letter"?"pin-letter":it.cat==="water"?"pin-water":it.cat==="natuur"?"pin-nature":""; }
+function dotClass(it){ return it.type==="letter"?"dot-letter":it.cat==="water"?"dot-water":it.cat==="natuur"?"dot-nature":""; }
+function isLabeledMode(){ return currentMode==="learn" || (currentMode==="map" && mapSub==="ontdek"); }
+function initLeaflet(){
+  if(leafletMap || typeof L==="undefined") return;
+  leafletMap = L.map("leafletMap",{worldCopyJump:true}).setView([22,8],2);
+  window._leafletMap = leafletMap;
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:10,minZoom:2,attribution:"&copy; OpenStreetMap-bijdragers"}).addTo(leafletMap);
+  markerLayer = L.layerGroup().addTo(leafletMap);
 }
-function mapSVG(scope){
-  var gid = "ocean-"+scope, grid = "";
-  for(var gx=100; gx<1000; gx+=100) grid += '<line x1="'+gx+'" y1="0" x2="'+gx+'" y2="560"/>';
-  for(var gy=100; gy<560; gy+=100) grid += '<line x1="0" y1="'+gy+'" x2="1000" y2="'+gy+'"/>';
-  return '<svg viewBox="0 0 1000 560" role="img" aria-label="Wereldkaart met alle topo-plekken">'
-    + '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CDEBF7"/><stop offset=".55" stop-color="#A9D8EE"/><stop offset="1" stop-color="#8FC9E8"/></linearGradient></defs>'
-    + '<rect x="0" y="0" width="1000" height="560" fill="url(#'+gid+')"/>'
-    + '<g stroke="#FFFFFF" stroke-opacity=".28" stroke-width="1">'+grid+'</g>'
-    + '<line x1="0" y1="280" x2="1000" y2="280" stroke="#FFFFFF" stroke-opacity=".45" stroke-width="1.5" stroke-dasharray="8 6"/>'
-    + MAP_ART + ITEMS.map(function(it){ return markerSVG(it, scope); }).join("") + '</svg>';
+function renderMap(){
+  initLeaflet();
+  if(!leafletMap || !markerLayer) return;
+  markerLayer.clearLayers();
+  var labeled = isLabeledMode();
+  var hintEl = document.getElementById("globalMapModeHint");
+  var infoEl = document.getElementById("globalMapInfo");
+  if(labeled){ if(hintEl) hintEl.textContent="Alle 35 plekken met letter of nummer. Klik op een marker!"; }
+  else if(currentMode==="map" && mapSub==="speel"){ if(hintEl) hintEl.textContent="Kaartspel: alleen stippen, geen letters of nummers. Klik de goede stip aan!"; }
+  else { if(hintEl) hintEl.textContent="Alleen stippen op de kaart - de letters en nummers worden hier niet verraden."; if(infoEl && currentMode!=="map") infoEl.innerHTML="Zoek de plek op de kaart. De stippen hebben expres geen letter of nummer."; }
+  ITEMS.forEach(function(it){
+    var ll = COORDS[it.code]; if(!ll) return;
+    var marker;
+    if(labeled){
+      var sz = it.type==="letter"?34:30;
+      var icon = L.divIcon({className:"", html:'<div class="topo-pin '+pinClass(it)+'" style="width:'+sz+'px;height:'+sz+'px;font-size:'+(it.type==="letter"?16:14)+'px">'+it.code+'</div>', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]});
+      marker = L.marker(ll,{icon:icon});
+      marker.bindPopup("<strong>"+it.code+" = "+it.name+"</strong><br>"+it.hint);
+      marker.on("click", function(){ if(infoEl) infoEl.innerHTML = mapInfoHTML(it); });
+    } else {
+      var st = "";
+      if(mqHighlight.found===it.code) st=" dot-found"; else if(mqHighlight.wrong===it.code) st=" dot-wrong"; else if(mqHighlight.reveal===it.code) st=" dot-reveal";
+      var dsz = st?22:16;
+      var dicon = L.divIcon({className:"", html:'<div class="topo-dot '+dotClass(it)+st+'" style="width:'+dsz+'px;height:'+dsz+'px"></div>', iconSize:[dsz,dsz], iconAnchor:[dsz/2,dsz/2]});
+      marker = L.marker(ll,{icon:dicon});
+      if(currentMode==="map" && mapSub==="speel"){ (function(code){ marker.on("click", function(){ answerMapQuiz(code); }); })(it.code); }
+    }
+    marker.addTo(markerLayer);
+  });
 }
-function renderMaps(){
-  document.getElementById("mapLearn").innerHTML = mapSVG("learn");
-  document.getElementById("mapMain").innerHTML = mapSVG("main");
-  document.getElementById("mapPlay").innerHTML = mapSVG("play");
-}
+function renderMaps(){ renderMap(); }
 function mapInfoHTML(it){ return "<strong>"+it.code+" = "+it.name+"</strong><br>"+it.hint; }
-document.addEventListener("click", function(e){
-  var t = e.target; if(!t || typeof t.closest !== "function") return;
-  var g = t.closest(".mk"); if(!g) return;
-  var code = g.dataset.code, scope = g.dataset.scope;
-  var it = ITEMS.filter(function(x){ return x.code===code; })[0]; if(!it) return;
-  if(scope==="play"){ answerMapQuiz(code); return; }
-  var wrap = g.closest(".map-wrap");
-  wrap.querySelectorAll(".mk").forEach(function(m){ m.classList.remove("sel"); });
-  wrap.querySelectorAll('.mk[data-code="'+code+'"]').forEach(function(m){ m.classList.add("sel"); });
-  document.getElementById(scope==="learn" ? "learnMapInfo" : "mainMapInfo").innerHTML = mapInfoHTML(it);
-});
 
 /* MAP SUB-MODE + MAP QUIZ */
 var mapSub = "ontdek";
@@ -685,7 +640,7 @@ function setMapSub(sub){
   document.getElementById("mapPlayBox").style.display = sub==="speel" ? "block" : "none";
   document.getElementById("mqResult").style.display = "none";
   document.querySelector("#panel-map .stage").style.display = "block";
-  renderMaps();
+  mqHighlight={}; renderMap();
   if(sub==="speel") startMapQuiz();
 }
 document.getElementById("btnMapExplore").addEventListener("click", function(){ setMapSub("ontdek"); });
@@ -698,7 +653,7 @@ function startMapQuiz(){
   document.querySelector("#panel-map .stage").style.display="block";
   document.getElementById("mqResult").style.display="none";
   document.getElementById("mapPlayBox").style.display="block";
-  renderMaps(); showMapQ();
+  mqHighlight={}; renderMap(); showMapQ();
 }
 function showMapQ(){
   mqLock=false;
@@ -710,28 +665,25 @@ function showMapQ(){
   document.getElementById("mqQ").textContent = "Waar ligt: "+it.name+"?";
   var fb=document.getElementById("mqFeedback"); fb.className="feedback"; fb.textContent="";
   document.getElementById("btnNextMq").style.display="none";
-  renderMaps();
+  mqHighlight={}; renderMap();
 }
 function answerMapQuiz(code){
   if(mapSub!=="speel" || mqLock) return;
   var it = mqList[mqIdx]; if(!it) return;
   mqLock = true;
-  var wrap = document.getElementById("mapPlay");
   var fb = document.getElementById("mqFeedback");
   if(code===it.code){
-    mqGood++;
-    wrap.querySelectorAll('.mk[data-code="'+code+'"]').forEach(function(m){ m.classList.add("found"); });
-    fb.className="feedback show ok"; fb.innerHTML="🎉 <strong>Goed gevonden!</strong> "+it.name+" is inderdaad "+(isNaN(it.code)?"letter ":"nummer ")+it.code+". "+it.hint;
+    mqGood++; mqHighlight={found:code};
+    fb.className="feedback show ok"; fb.innerHTML="Goed gevonden! "+it.name+" is inderdaad "+(isNaN(it.code)?"letter ":"nummer ")+it.code+". "+it.hint;
   } else {
-    mqMistakes.push(it);
-    wrap.querySelectorAll('.mk[data-code="'+code+'"]').forEach(function(m){ m.classList.add("wrong"); });
-    wrap.querySelectorAll('.mk[data-code="'+it.code+'"]').forEach(function(m){ m.classList.add("reveal"); });
+    mqMistakes.push(it); mqHighlight={wrong:code, reveal:it.code};
     var clicked = ITEMS.filter(function(x){ return x.code===code; })[0];
-    fb.className="feedback show no"; fb.innerHTML="❌ Dat was <strong>"+clicked.name+"</strong> ("+code+"). <strong>"+it.name+"</strong> is "+(isNaN(it.code)?"letter ":"nummer ")+it.code+" — kijk, hij licht geel op! "+it.hint;
+    fb.className="feedback show no"; fb.innerHTML="Dat was "+clicked.name+" ("+code+"). "+it.name+" is "+(isNaN(it.code)?"letter ":"nummer ")+it.code+" - de gele stip op de kaart! "+it.hint;
   }
+  renderMap();
   document.getElementById("mqGood").textContent = mqGood;
   var nxt=document.getElementById("btnNextMq"); nxt.style.display="inline-block";
-  nxt.textContent = mqIdx>=mqList.length-1 ? "Bekijk je score →" : "Volgende →";
+  nxt.textContent = mqIdx>=mqList.length-1 ? "Bekijk je score" : "Volgende";
 }
 document.getElementById("btnNextMq").addEventListener("click", function(){ mqIdx++; showMapQ(); });
 document.getElementById("btnRestartMq").addEventListener("click", startMapQuiz);
@@ -746,7 +698,7 @@ function finishMapQuiz(){
 }
 
 /* INIT */
-renderChips(); renderLearn(); resetFlash(); renderMaps();
+renderChips(); renderLearn(); resetFlash(); renderMap(); setTimeout(function(){ if(leafletMap) leafletMap.invalidateSize(); },300); window.addEventListener('resize', function(){ if(leafletMap) leafletMap.invalidateSize(); });
 </script>
 </body>
 </html>
