@@ -132,7 +132,9 @@ a{color:var(--teal)}
 .map-wrap svg{display:block;width:100%;height:auto}
 .mk{cursor:pointer}
 .mk .hit{fill:transparent;stroke:none}
-.mk .dot{fill:#fff;stroke:var(--teal);stroke-width:2.5}
+.mk .dot{fill:#fff;stroke:var(--teal);stroke-width:2.5;filter:drop-shadow(0 2px 2px rgba(23,54,66,.35));transform-box:fill-box;transform-origin:center;transition:transform .15s ease}
+.mk:hover .dot{transform:scale(1.18)}
+@media(prefers-reduced-motion:reduce){.mk .dot{transition:none}.mk:hover .dot{transform:none}}
 .mk text{font-family:"Fredoka",sans-serif;font-weight:700;fill:var(--ink);text-anchor:middle;pointer-events:none}
 .mk.letter .dot{fill:var(--coral);stroke:#fff}
 .mk.letter text{fill:#fff}
@@ -586,32 +588,56 @@ var POS = {
  "27":[530,200],"28":[628,180]
 };
 var POS_EXTRA = { "20":[[972,306]] };
+var LAND_STROKE = ' stroke="#6E9279" stroke-opacity=".5" stroke-width="2" stroke-linejoin="round"';
 var MAP_ART = ''
-+ '<path d="M55 150 L70 105 L105 70 L165 45 L235 38 L295 52 L330 78 L322 112 L300 128 L292 152 L268 168 L250 178 L238 205 L246 232 L228 252 L214 224 L196 205 L160 198 L118 182 L78 172 Z" fill="#F2C9C4"/>'
-+ '<path d="M318 30 L368 22 L388 44 L366 66 L326 60 Z" fill="#F2C9C4"/>'
-+ '<path d="M272 268 L312 246 L352 252 L378 280 L380 326 L358 384 L330 438 L308 458 L294 402 L278 344 Z" fill="#DCE8A8"/>'
-+ '<path d="M462 128 L472 92 L505 62 L552 52 L596 66 L612 94 L592 118 L566 128 L552 112 L536 136 L514 148 L500 128 L478 146 Z" fill="#CFE3A0"/>'
-+ '<path d="M466 196 L492 168 L548 158 L600 172 L626 204 L630 262 L606 326 L566 366 L528 352 L494 306 L472 252 Z" fill="#F0DFA0"/>'
-+ '<path d="M600 92 L668 52 L782 40 L892 52 L952 88 L962 138 L922 168 L884 158 L872 196 L842 238 L812 214 L786 252 L748 262 L724 224 L688 214 L664 178 L632 168 L606 132 Z" fill="#EFEFC0"/>'
-+ '<path d="M688 196 L736 192 L728 252 L700 262 L684 226 Z" fill="#EFEFC0"/>'
-+ '<path d="M800 240 L826 238 L818 286 L796 292 L792 258 Z" fill="#EFEFC0"/>'
-+ '<ellipse cx="772" cy="302" rx="16" ry="6" fill="#EFEFC0"/><ellipse cx="818" cy="308" rx="18" ry="6" fill="#EFEFC0"/><ellipse cx="866" cy="300" rx="14" ry="5" fill="#EFEFC0"/>'
-+ '<ellipse cx="906" cy="140" rx="16" ry="9" fill="#EFEFC0" transform="rotate(35 906 140)"/>'
-+ '<path d="M796 316 L852 292 L916 300 L940 332 L918 376 L856 392 L806 366 Z" fill="#DCE8A8"/>'
-+ '<ellipse cx="958" cy="404" rx="14" ry="7" fill="#DCE8A8" transform="rotate(40 958 404)"/>'
-+ '<ellipse cx="535" cy="205" rx="72" ry="27" fill="#E4B95B" opacity=".55"/>'
-+ '<ellipse cx="192" cy="130" rx="36" ry="12" fill="#E4B95B" opacity=".7" transform="rotate(12 192 130)"/>'
-+ '<ellipse cx="310" cy="332" rx="11" ry="56" fill="#E4B95B" opacity=".7" transform="rotate(6 310 332)"/>'
-+ '<ellipse cx="736" cy="180" rx="30" ry="10" fill="#E4B95B" opacity=".7"/>'
-+ '<path d="M598 148 L662 150 L664 196 L604 200 L596 174 Z" fill="none" stroke="#8E6FB8" stroke-width="2.5" stroke-dasharray="6 4"/>'
-+ '<path d="M590 252 L586 212 L584 186" fill="none" stroke="#2B7FFF" stroke-width="3" stroke-linecap="round"/>'
-+ '<path d="M300 286 L338 280 L368 289" fill="none" stroke="#2B7FFF" stroke-width="3" stroke-linecap="round"/>'
-+ '<path d="M722 202 L744 197" fill="none" stroke="#2B7FFF" stroke-width="3" stroke-linecap="round"/>'
-+ '<path d="M0 486 Q120 470 260 484 T520 482 T780 484 T1000 480 L1000 560 L0 560 Z" fill="#FFFFFF"/>'
-+ '<line x1="600" y1="176" x2="472" y2="288" stroke="#5B6B64" stroke-width="1.8"/>'
-+ '<circle cx="448" cy="308" r="30" fill="#F7F3DF" stroke="#5B6B64" stroke-width="2"/>'
-+ '<path d="M428 308 L442 296 L452 306 L466 300 L462 318 L440 320 L430 316 Z" fill="#EFEFC0" stroke="#B9B98A" stroke-width="1.2"/>'
-+ '<text x="448" y="342" font-family="Fredoka" font-weight="700" font-size="15" fill="#1A2E28" text-anchor="middle">7</text>';
+/* --- land: herkenbare, vloeiende continentvormen --- */
++ '<path d="M34 132 C38 100 52 72 82 54 C118 36 172 28 226 32 C266 35 296 46 306 60 C298 74 284 84 276 96 C284 110 290 122 282 134 C296 128 314 118 326 112 C342 128 336 150 318 162 C306 172 296 182 292 196 C300 206 296 220 284 222 C268 220 252 206 244 196 C236 208 232 220 226 232 C240 224 252 228 254 238 C244 250 228 252 216 244 C204 228 196 212 192 196 C188 178 178 168 160 166 C138 172 116 168 96 156 C72 146 48 140 34 132 Z" fill="#F8C8B4"'+LAND_STROKE+'/>'
++ '<path d="M300 44 C322 30 356 30 372 46 C382 58 376 76 356 84 C334 92 310 84 300 68 C294 58 294 50 300 44 Z" fill="#FFFFFF"'+LAND_STROKE+'/>'
++ '<path d="M262 252 C285 238 320 240 348 254 C378 268 392 292 388 318 C384 344 362 362 344 384 C330 402 326 428 322 452 C320 466 310 470 304 458 C296 436 292 404 288 372 C284 338 272 306 262 282 C256 268 256 258 262 252 Z" fill="#BFE0A8"'+LAND_STROKE+'/>'
++ '<path d="M486 142 C472 140 464 128 468 112 C471 99 480 92 492 90 C504 80 516 74 528 76 C524 62 530 46 544 38 C560 30 578 36 580 50 C582 62 572 72 560 76 C574 84 588 84 598 94 C606 104 602 118 592 124 C596 134 592 144 582 148 C574 140 562 138 552 142 C540 146 520 146 486 142 Z" fill="#A9D6A5"'+LAND_STROKE+'/>'
++ '<path d="M540 114 C550 122 560 132 568 142 C560 150 548 146 542 136 C536 128 536 118 540 114 Z" fill="#A9D6A5"'+LAND_STROKE+'/>'
++ '<path d="M462 78 C456 64 462 50 474 48 C486 46 492 58 488 70 C484 82 468 88 462 78 Z" fill="#A9D6A5"'+LAND_STROKE+'/>'
++ '<ellipse cx="446" cy="74" rx="9" ry="7" fill="#A9D6A5"'+LAND_STROKE+'/>'
++ '<path d="M470 178 C478 162 500 154 528 152 C566 150 604 156 624 168 C634 176 636 188 630 200 C644 214 650 232 644 250 C638 264 624 268 612 260 C610 286 600 314 584 338 C570 360 552 372 538 362 C524 350 514 326 504 302 C490 272 476 238 470 210 C466 196 466 186 470 178 Z" fill="#F7DC8F"'+LAND_STROKE+'/>'
++ '<ellipse cx="624" cy="324" rx="10" ry="22" fill="#F7DC8F" transform="rotate(18 624 324)"'+LAND_STROKE+'/>'
++ '<path d="M622 146 C630 112 656 78 700 58 C752 34 830 26 898 34 C946 40 972 60 976 84 C979 106 966 124 944 132 C934 142 930 154 934 166 C924 186 902 198 880 196 C872 208 862 218 850 220 C846 238 830 252 812 258 C800 268 792 278 788 290 C784 300 776 302 772 292 C768 278 764 262 756 248 C748 234 742 220 742 206 C736 222 728 242 718 256 C708 268 700 258 694 238 C686 216 680 202 668 196 C650 190 636 196 628 208 C638 220 640 232 632 242 C618 250 602 244 596 228 C590 210 590 190 596 168 C598 158 608 150 622 146 Z" fill="#F9EDBE"'+LAND_STROKE+'/>'
++ '<path d="M590 140 C602 134 618 136 626 144 C620 154 604 158 594 152 C588 148 586 144 590 140 Z" fill="#F9EDBE"'+LAND_STROKE+'/>'
++ '<ellipse cx="884" cy="158" rx="7" ry="12" fill="#F9EDBE" transform="rotate(30 884 158)"'+LAND_STROKE+'/>'
++ '<ellipse cx="899" cy="139" rx="6" ry="11" fill="#F9EDBE" transform="rotate(35 899 139)"'+LAND_STROKE+'/>'
++ '<ellipse cx="915" cy="121" rx="6" ry="10" fill="#F9EDBE" transform="rotate(40 915 121)"'+LAND_STROKE+'/>'
++ '<ellipse cx="929" cy="105" rx="5" ry="8" fill="#F9EDBE" transform="rotate(45 929 105)"'+LAND_STROKE+'/>'
++ '<ellipse cx="742" cy="280" rx="20" ry="7" fill="#F9EDBE" transform="rotate(38 742 280)"'+LAND_STROKE+'/>'
++ '<ellipse cx="818" cy="280" rx="17" ry="13" fill="#F9EDBE"'+LAND_STROKE+'/>'
++ '<ellipse cx="790" cy="306" rx="24" ry="6" fill="#F9EDBE"'+LAND_STROKE+'/>'
++ '<ellipse cx="852" cy="286" rx="10" ry="8" fill="#F9EDBE"'+LAND_STROKE+'/>'
++ '<ellipse cx="912" cy="290" rx="26" ry="9" fill="#F9EDBE"'+LAND_STROKE+'/>'
++ '<circle cx="716" cy="262" r="4" fill="#F9EDBE"/><circle cx="852" cy="252" r="4" fill="#F9EDBE"/><circle cx="866" cy="238" r="3.5" fill="#F9EDBE"/>'
++ '<path d="M798 336 C792 310 806 292 834 286 C868 279 908 285 930 302 C946 315 948 338 936 356 C922 376 892 388 858 386 C826 384 803 362 798 336 Z" fill="#BFE0A8"'+LAND_STROKE+'/>'
++ '<ellipse cx="922" cy="398" rx="8" ry="6" fill="#BFE0A8"'+LAND_STROKE+'/>'
++ '<ellipse cx="950" cy="398" rx="13" ry="6" fill="#BFE0A8" transform="rotate(38 950 398)"'+LAND_STROKE+'/>'
++ '<ellipse cx="968" cy="416" rx="11" ry="5" fill="#BFE0A8" transform="rotate(38 968 416)"'+LAND_STROKE+'/>'
++ '<path d="M0 492 C120 478 240 492 360 484 C480 476 600 490 720 482 C840 474 940 486 1000 480 L1000 560 L0 560 Z" fill="#FFFFFF" stroke="#A9CCE0" stroke-width="2"/>'
+/* --- Sahara --- */
++ '<path d="M472 196 C480 176 512 166 548 168 C584 170 612 180 618 196 C612 212 580 220 544 220 C508 220 480 212 472 196 Z" fill="#F0BE4E" opacity=".8"/>'
+/* --- gebergten als bergtopjes --- */
++ '<path d="M164 152 L178 122 L192 152 Z M184 156 L200 124 L216 156 Z M172 134 L184 110 L196 134 Z" fill="#D9A05B" stroke="#B97F35" stroke-width="1.5" stroke-linejoin="round"/>'
++ '<path d="M292 300 L302 278 L312 300 Z M296 336 L306 312 L316 336 Z M300 372 L310 348 L320 372 Z M302 408 L312 384 L322 408 Z M304 442 L313 420 L322 442 Z" fill="#D9A05B" stroke="#B97F35" stroke-width="1.5" stroke-linejoin="round"/>'
++ '<path d="M700 190 L712 168 L724 190 Z M720 192 L734 166 L748 192 Z M742 190 L754 170 L766 190 Z" fill="#D9A05B" stroke="#B97F35" stroke-width="1.5" stroke-linejoin="round"/>'
+/* --- rivieren --- */
++ '<path d="M588 258 C586 238 590 222 586 204 C584 196 585 190 587 184" fill="none" stroke="#2F7FD0" stroke-width="3.5" stroke-linecap="round"/>'
++ '<path d="M296 288 C318 282 344 288 372 282" fill="none" stroke="#2F7FD0" stroke-width="3.5" stroke-linecap="round"/>'
++ '<path d="M724 214 C736 206 748 200 762 194" fill="none" stroke="#2F7FD0" stroke-width="3.5" stroke-linecap="round"/>'
+/* --- regio Midden-Oosten --- */
++ '<path d="M600 150 L662 150 C670 150 676 156 676 164 L676 194 C676 202 670 208 662 208 L604 208 C596 208 592 202 592 194 L592 158 C592 152 594 150 600 150 Z" fill="rgba(142,111,184,.10)" stroke="#8E6FB8" stroke-width="2.5" stroke-dasharray="6 4"/>'
+/* --- kompas --- */
++ '<g transform="translate(64 428)"><circle r="17" fill="rgba(255,255,255,.7)" stroke="#7A8B84" stroke-width="1.5"/><path d="M0 -13 L3.5 0 L0 13 L-3.5 0 Z" fill="#E94F37"/><path d="M-13 0 L0 3.5 L13 0 L0 -3.5 Z" fill="#7A8B84"/><text y="-22" font-family="Fredoka" font-weight="700" font-size="12" fill="#47615A" text-anchor="middle">N</text></g>'
+/* --- Israël vergroot, net als op de echte kaart --- */
++ '<line x1="594" y1="182" x2="478" y2="298" stroke="#7A8B84" stroke-width="2"/>'
++ '<circle cx="448" cy="308" r="34" fill="#FFFBEF" stroke="#7A8B84" stroke-width="2"/>'
++ '<path d="M434 284 C444 280 458 283 463 293 C467 302 463 315 453 323 C443 329 431 324 429 312 C427 300 428 288 434 284 Z" fill="#F9EDBE" stroke="#C9BC7E" stroke-width="1.5"/>'
++ '<path d="M452 290 C450 300 452 310 449 318" fill="none" stroke="#2F7FD0" stroke-width="2" stroke-linecap="round"/>'
++ '<circle cx="440" cy="302" r="3.5" fill="#E94F37"/>'
++ '<text x="448" y="356" font-family="Fredoka" font-weight="700" font-size="15" fill="#1A2E28" text-anchor="middle">7</text>';
 function markerSVG(it, scope){
   var p = POS[it.code]; if(!p) return "";
   var cls = "mk" + (it.type==="letter" ? " letter" : it.cat==="water" ? " water" : it.cat==="natuur" ? " nature" : "");
@@ -621,7 +647,15 @@ function markerSVG(it, scope){
   return s;
 }
 function mapSVG(scope){
-  return '<svg viewBox="0 0 1000 560" role="img" aria-label="Wereldkaart met alle topo-plekken"><rect x="0" y="0" width="1000" height="560" fill="#A8D8E8"/>' + MAP_ART + ITEMS.map(function(it){ return markerSVG(it, scope); }).join("") + '</svg>';
+  var gid = "ocean-"+scope, grid = "";
+  for(var gx=100; gx<1000; gx+=100) grid += '<line x1="'+gx+'" y1="0" x2="'+gx+'" y2="560"/>';
+  for(var gy=100; gy<560; gy+=100) grid += '<line x1="0" y1="'+gy+'" x2="1000" y2="'+gy+'"/>';
+  return '<svg viewBox="0 0 1000 560" role="img" aria-label="Wereldkaart met alle topo-plekken">'
+    + '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CDEBF7"/><stop offset=".55" stop-color="#A9D8EE"/><stop offset="1" stop-color="#8FC9E8"/></linearGradient></defs>'
+    + '<rect x="0" y="0" width="1000" height="560" fill="url(#'+gid+')"/>'
+    + '<g stroke="#FFFFFF" stroke-opacity=".28" stroke-width="1">'+grid+'</g>'
+    + '<line x1="0" y1="280" x2="1000" y2="280" stroke="#FFFFFF" stroke-opacity=".45" stroke-width="1.5" stroke-dasharray="8 6"/>'
+    + MAP_ART + ITEMS.map(function(it){ return markerSVG(it, scope); }).join("") + '</svg>';
 }
 function renderMaps(){
   document.getElementById("mapLearn").innerHTML = mapSVG("learn");
