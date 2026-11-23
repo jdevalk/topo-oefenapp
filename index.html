@@ -141,6 +141,9 @@ a{color:var(--teal)}
 .topo-dot{border-radius:999px;background:#0E7C6B;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.45)}
 .topo-dot.dot-letter{background:#FB6F4C}.topo-dot.dot-water{background:#2B7FFF}.topo-dot.dot-nature{background:#E9B949}
 .topo-dot.dot-found{background:#2FB457 !important}.topo-dot.dot-wrong{background:#E94F37 !important}.topo-dot.dot-reveal{background:#FFB703 !important;border-color:#1A2E28}
+.topo-pin.pin-highlight{background:#FFB703;color:#231a00;border:3px solid #1A2E28;font-size:20px;animation:pinPulse 1.6s ease-in-out infinite}
+@keyframes pinPulse{0%,100%{box-shadow:0 2px 6px rgba(0,0,0,.4),0 0 0 0 rgba(255,183,3,.55)}50%{box-shadow:0 2px 6px rgba(0,0,0,.4),0 0 0 12px rgba(255,183,3,0)}}
+@media(prefers-reduced-motion:reduce){.topo-pin.pin-highlight{animation:none}}
 .map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:13px;font-weight:800;color:var(--muted)}
 .map-legend span{display:inline-flex;align-items:center;gap:6px}
 .lg{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;font-size:11px;font-family:"Fredoka";font-weight:700;color:#fff;background:var(--teal)}
@@ -150,13 +153,60 @@ a{color:var(--teal)}
 .map-toggle{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font-size:13.5px;line-height:1.6}
 .kbd-hint{font-size:13px;color:var(--muted);font-weight:800;text-align:center;margin-top:10px}
+
+/* ===== REDESIGN: kaart en vraag altijd tegelijk in beeld ===== */
+body{line-height:1.45}
+.wrap{max-width:1300px;padding:22px 22px 56px}
+.hero{padding:22px 26px 20px;border-radius:24px}
+.hero h1{font-size:clamp(30px,4vw,42px)}
+.hero p{font-size:16px;max-width:800px}
+.hero::after{font-size:17px;opacity:.6}
+.mode-btn{box-shadow:0 2px 0 rgba(0,0,0,.05)}
+.learn-card{box-shadow:none}
+.stage{padding:24px}
+.section-head h2{font-size:24px}
+.big-question h2{font-size:25px}
+/* Layout: kaart links (sticky), vraag rechts; mobiel gestapeld */
+.layout{display:grid;grid-template-columns:1fr;gap:18px;align-items:start}
+.layout-main{min-width:0}
+.global-map{margin:0}
+#leafletMap{height:320px}
+@media(min-width:1024px){
+  .layout{grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:22px}
+  .layout-map{position:sticky;top:16px}
+  #leafletMap{height:min(600px,calc(100vh - 215px));min-height:440px}
+}
+@media(max-width:640px){
+  .wrap{padding:12px 12px 40px}
+  .hero{padding:14px 16px 12px;border-radius:20px}
+  .hero h1{font-size:26px}
+  .hero p{display:none}
+  .hero-stats{margin-top:10px;gap:6px}
+  .stat{padding:5px 10px;font-size:12px}
+  .modes{grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0 10px}
+  .mode-btn:last-child{grid-column:auto}
+  .mode-btn{padding:8px 2px 7px;border-radius:14px}
+  .mode-btn .ico{font-size:20px}
+  .mode-btn .lbl{font-size:11.5px;margin-top:4px;line-height:1.15}
+  .mode-btn .sub{display:none}
+  .chips{margin-bottom:12px;gap:6px}
+  .chip{padding:6px 11px;font-size:13px}
+  .global-map{padding:8px;border-radius:16px}
+  .global-map-head h2{font-size:17px}
+  .global-map-head p{font-size:12.5px}
+  #leafletMap{height:290px}
+  .map-legend{font-size:12px;gap:6px 12px}
+  .stage{padding:16px;border-radius:20px}
+  .big-code{min-width:76px;height:76px;font-size:36px;border-radius:20px}
+  .big-question h2{font-size:22px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="hero">
     <h1>Topo oefenen <span>voor Borre</span> 🌍</h1>
-    <p>Leer alle plekken van je wereldkaart: werelddelen, landen, steden, oceanen, rivieren en bergen. Hieronder staat altijd een echte kaart van de wereld. In Leren zie je alle letters en nummers op de kaart; in de spelletjes staan er alleen stippen, zodat de kaart het antwoord niet verraadt. Kies hoe je wilt oefenen!</p>
+    <p>Leer alle plekken van je wereldkaart: werelddelen, landen, steden, oceanen, rivieren en bergen. Er staat altijd een echte kaart van de wereld in beeld, naast of boven de vraag. In Leren zie je alle letters en nummers op de kaart. In de spelletjes blijven de plekken stippen zonder nummer, behalve het nummer of de letter waar de vraag over gaat: die staat als grote gele pin op de kaart, zodat je kunt zien waar hij ligt. Kies hoe je wilt oefenen!</p>
     <div class="hero-stats">
       <span class="stat"><b>35</b> plekken in totaal</span>
       <span class="stat"><b>A t/m G</b> werelddelen</span>
@@ -174,16 +224,20 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
 
   <div class="chips" id="catChips" role="group" aria-label="Filter op soort"></div>
 
+  <div class="layout">
+    <div class="layout-map">
   <section class="global-map" aria-label="Wereldkaart">
     <div class="global-map-head"><h2>🌍 De echte wereldkaart</h2><p id="globalMapModeHint">Alle 35 plekken met letter of nummer. Klik op een marker!</p></div>
     <div id="leafletMap" role="application" aria-label="Interactieve wereldkaart"></div>
     <div class="map-legend"><span><span class="lg letter">A</span> Werelddeel</span><span><span class="lg">1</span> Land / stad</span><span><span class="lg water">~</span> Oceaan / rivier</span><span><span class="lg nature">▲</span> Gebergte / woestijn / regio</span><span style="margin-left:auto">Kaart: © OpenStreetMap-bijdragers</span></div>
     <div class="map-info" id="globalMapInfo">👆 Klik op een letter of nummer op de kaart!</div>
   </section>
+    </div>
+    <div class="layout-main">
 
   <!-- LEARN -->
   <section class="panel active" id="panel-learn">
-    <div class="section-head"><div><h2>Alle plekken leren</h2><p>De echte kaart hierboven toont alle 35 plekken met hun letter of nummer. Klik op een marker op de kaart om de naam en tip te zien, of kijk in de lijst hieronder.</p></div></div>
+    <div class="section-head"><div><h2>Alle plekken leren</h2><p>De kaart toont alle 35 plekken met hun letter of nummer. Klik op een marker op de kaart om de naam en tip te zien, of kijk in de lijst ernaast.</p></div></div>
     <div class="section-head" style="margin-top:26px"><div><h2>Alle plekken op een rij</h2><p>Klik op een filter hierboven of scroll gewoon door. De tip helpt je de plek te onthouden.</p></div></div>
     <div class="learn-grid" id="learnGrid"></div>
   </section>
@@ -282,7 +336,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
         <button class="chip" id="btnMapPlay">🎯 Speel: vind de plek!</button>
       </div>
       <div id="mapExploreBox">
-        <div class="big-question" style="padding-top:0"><h2>Ontdek de kaart</h2><p>Klik op een letter of nummer op de echte kaart hierboven en ontdek welke plek het is.</p></div>
+        <div class="big-question" style="padding-top:0"><h2>Ontdek de kaart</h2><p>Klik op een letter of nummer op de kaart en ontdek welke plek het is.</p></div>
       </div>
       <div id="mapPlayBox" style="display:none">
         <div class="scorebar">
@@ -290,7 +344,7 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
           <span class="score-pill">Goed: <b id="mqGood">0</b></span>
         </div>
         <div class="progress"><i id="mqBar" style="width:0%"></i></div>
-        <div class="big-question" style="padding-top:0"><h2 id="mqQ">Waar ligt: …?</h2><p>Klik op de goede stip op de echte kaart hierboven. Er staan expres geen letters of nummers op de stippen!</p></div>
+        <div class="big-question" style="padding-top:0"><h2 id="mqQ">Waar ligt: …?</h2><p>Klik op de goede stip op de kaart. Er staan expres geen letters of nummers op de stippen!</p></div>
         <div class="feedback" id="mqFeedback" style="max-width:640px;margin-left:auto;margin-right:auto"></div>
         <div class="btn-row">
           <button class="btn btn-primary" id="btnNextMq" style="display:none">Volgende →</button>
@@ -306,6 +360,9 @@ footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font
       <div class="btn-row"><button class="btn btn-primary" onclick="startMapQuiz()">Nog een keer spelen</button><button class="btn btn-ghost" onclick="setMapSub('ontdek')">Kaart ontdekken</button></div>
     </div>
   </section>
+
+    </div>
+  </div>
 
   <footer>Topo: A t/m G en 1 t/m 28, op een echte wereldkaart (OpenStreetMap). Oefen elke dag een klein stukje — 10 vragen is al genoeg! Veel succes, Borre! 🍀</footer>
 </div>
@@ -360,6 +417,7 @@ var CATS = [
 var CAT_LABEL = {werelddelen:"Werelddeel",landen:"Land",steden:"Stad",water:"Water",natuur:"Gebergte / woestijn / regio"};
 var currentCat = "all";
 var currentMode = "learn";
+var highlightCode = null; // code whose pin is shown labeled on the map during code->name questions (quiz/type)
 
 function filtered(){ return currentCat==="all" ? ITEMS.slice() : ITEMS.filter(function(i){return i.cat===currentCat;}); }
 function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)); var t=arr[i];arr[i]=arr[j];arr[j]=t;} return arr; }
@@ -397,6 +455,7 @@ function renderLearn(){
 /* MODE SWITCH */
 function switchMode(m){
   currentMode=m;
+  highlightCode=null;
   document.querySelectorAll(".mode-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.mode===m); });
   document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("active"); });
   document.getElementById("panel-"+m).classList.add("active");
@@ -472,13 +531,17 @@ function showQuizQ(){
   var codeEl=document.getElementById("quizCode");
   // Alternate direction: even = code -> name, odd = name -> code description via hint? Keep code->name mostly, sometimes reverse with options as codes
   var reverse = (quizIdx%3===2);
+  // Code->name question: mark that code as a labeled pin on the map so Borre can see where it is.
+  // Name->code question: no highlight, the map keeps plain dots and the tile shows "?".
+  highlightCode = reverse ? null : it.code;
+  renderMap();
   var fb=document.getElementById("quizFeedback"); fb.className="feedback"; fb.textContent="";
   document.getElementById("btnNextQ").style.display="none";
   var optsEl=document.getElementById("quizOptions");
   if(!reverse){
     codeEl.textContent=it.code; codeEl.className="big-code"+(it.type==="letter"?" letter":"");
     document.getElementById("quizQ").textContent = it.type==="letter" ? "Welk werelddeel hoort bij letter "+it.code+"?" : "Welke plek hoort bij nummer "+it.code+"?";
-    document.getElementById("quizHint").textContent = "Kies het goede antwoord. Tip verstopt: denk aan de plek op de kaart!";
+    document.getElementById("quizHint").textContent = "Kijk op de kaart: de grote gele pin is "+(it.type==="letter"?"letter ":"nummer ")+it.code+". Welke plek hoort daarbij? Kies het goede antwoord.";
     var distract = shuffle(ITEMS.filter(function(x){return x.code!==it.code && x.cat===it.cat;})).slice(0,3);
     if(distract.length<3) distract = distract.concat(shuffle(ITEMS.filter(function(x){return x.code!==it.code && distract.indexOf(x)===-1;})).slice(0,3-distract.length));
     var options = shuffle([it].concat(distract));
@@ -515,6 +578,7 @@ document.getElementById("btnNextQ").addEventListener("click", function(){ quizId
 document.getElementById("btnRestartQuiz").addEventListener("click", startQuiz);
 function starsFor(good,total){ var r=total?good/total:0; if(r>=0.9) return "⭐⭐⭐"; if(r>=0.6) return "⭐⭐☆"; if(r>0) return "⭐☆☆"; return "☆☆☆"; }
 function finishQuiz(){
+  highlightCode=null; renderMap();
   document.getElementById("quizStage").style.display="none";
   var res=document.getElementById("quizResult"); res.style.display="block";
   document.getElementById("quizStars").textContent=starsFor(quizGood, quizList.length);
@@ -542,7 +606,10 @@ function showTypeQ(){
   document.getElementById("typeGood").textContent=typeGood;
   document.getElementById("typeBar").style.width=Math.round((typeIdx/typeList.length)*100)+"%";
   var codeEl=document.getElementById("typeCode"); codeEl.textContent=it.code; codeEl.className="big-code"+(it.type==="letter"?" letter":"");
-  document.getElementById("typeHint").textContent="💡 Tip: "+it.hint;
+  // The name is asked for this number/letter, so mark it as a labeled pin on the map.
+  highlightCode = it.code;
+  renderMap();
+  document.getElementById("typeHint").textContent="💡 Tip: "+it.hint+" Kijk ook op de kaart: de grote gele pin is "+(it.type==="letter"?"letter ":"nummer ")+it.code+".";
   var inp=document.getElementById("typeInput"); inp.value=""; inp.disabled=false; inp.focus();
   var fb=document.getElementById("typeFeedback"); fb.className="feedback";
   document.getElementById("btnCheckType").style.display="inline-block";
@@ -568,6 +635,7 @@ document.getElementById("btnSkipType").addEventListener("click", function(){ res
 document.getElementById("btnNextType").addEventListener("click", function(){ typeIdx++; showTypeQ(); });
 document.getElementById("typeInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); if(!typeDone) resolveType(false); else { typeIdx++; showTypeQ(); } } });
 function finishType(){
+  highlightCode=null; renderMap();
   document.getElementById("typeStage").style.display="none";
   var res=document.getElementById("typeResult"); res.style.display="block";
   document.getElementById("typeStars").textContent=starsFor(typeGood, typeList.length);
@@ -602,9 +670,16 @@ function renderMap(){
   if(!leafletMap || !markerLayer) return;
   markerLayer.clearLayers();
   var labeled = isLabeledMode();
+  var hl = (!labeled && (currentMode==="quiz" || currentMode==="type")) ? highlightCode : null;
   var hintEl = document.getElementById("globalMapModeHint");
   var infoEl = document.getElementById("globalMapInfo");
   if(labeled){ if(hintEl) hintEl.textContent="Alle 35 plekken met letter of nummer. Klik op een marker!"; }
+  else if(hl){
+    var hlItem = ITEMS.filter(function(x){ return x.code===hl; })[0];
+    var hlWord = hlItem && hlItem.type==="letter" ? "letter " : "nummer ";
+    if(hintEl) hintEl.textContent="De grote gele pin op de kaart is "+hlWord+hl+". De andere plekken zijn stippen zonder nummer.";
+    if(infoEl) infoEl.innerHTML="👆 Kijk naar de grote gele pin op de kaart: dat is "+hlWord+"<strong>"+hl+"</strong>. Welke plek hoort daarbij?";
+  }
   else if(currentMode==="map" && mapSub==="speel"){ if(hintEl) hintEl.textContent="Kaartspel: alleen stippen, geen letters of nummers. Klik de goede stip aan!"; }
   else { if(hintEl) hintEl.textContent="Alleen stippen op de kaart - de letters en nummers worden hier niet verraden."; if(infoEl && currentMode!=="map") infoEl.innerHTML="Zoek de plek op de kaart. De stippen hebben expres geen letter of nummer."; }
   ITEMS.forEach(function(it){
@@ -616,6 +691,10 @@ function renderMap(){
       marker = L.marker(ll,{icon:icon});
       marker.bindPopup("<strong>"+it.code+" = "+it.name+"</strong><br>"+it.hint);
       marker.on("click", function(){ if(infoEl) infoEl.innerHTML = mapInfoHTML(it); });
+    } else if(hl && it.code===hl){
+      var hsz = 44;
+      var hicon = L.divIcon({className:"", html:'<div class="topo-pin pin-highlight" style="width:'+hsz+'px;height:'+hsz+'px">'+it.code+'</div>', iconSize:[hsz,hsz], iconAnchor:[hsz/2,hsz/2]});
+      marker = L.marker(ll,{icon:hicon, zIndexOffset:1000});
     } else {
       var st = "";
       if(mqHighlight.found===it.code) st=" dot-found"; else if(mqHighlight.wrong===it.code) st=" dot-wrong"; else if(mqHighlight.reveal===it.code) st=" dot-reveal";
