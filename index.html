@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>Topo oefenapp — Wereld</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF8E8; --bg2:#EAF6F1; --card:#FFFFFF; --ink:#1A2E28; --muted:#5B6B64;
+  --teal:#0E7C6B; --teal-dark:#09594C; --yellow:#FFB703; --yellow-soft:#FFF0BF;
+  --coral:#FB6F4C; --coral-soft:#FFE3D9; --blue:#2A9D8F; --sky:#DFF3EE;
+  --green:#2FB457; --green-soft:#DDF5E3; --red:#E94F37; --red-soft:#FDE3DE;
+  --border:#E9DFC8; --shadow:0 6px 0 rgba(26,46,40,.08), 0 14px 28px rgba(26,46,40,.08);
+  --radius:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#12211C; --bg2:#0F1B17; --card:#1C2F28; --ink:#F2EFE6; --muted:#A9BBB2; --border:#2E453C; --sky:#223E36; --yellow-soft:#3A3318; --coral-soft:#3D2A24; --green-soft:#1E3A28; --red-soft:#3D2320; --shadow:0 6px 0 rgba(0,0,0,.25), 0 14px 28px rgba(0,0,0,.3); }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Nunito",system-ui,sans-serif;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);color:var(--ink);min-height:100vh}
+button,[role="button"],select,input{min-height:44px}
+h1,h2,h3{font-family:"Fredoka",sans-serif;line-height:1.05;margin:0}
+a{color:var(--teal)}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 48px}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;background:var(--teal);color:#fff;border-radius:28px;padding:26px 22px 22px;box-shadow:var(--shadow)}
+.hero::after{content:"🗺️ ✈️ 🧭";position:absolute;right:16px;top:14px;font-size:20px;letter-spacing:6px;opacity:.85}
+@media(max-width:700px){.hero::after{display:none}}
+.hero h1{font-size:clamp(32px,6vw,52px);max-width:620px;letter-spacing:-.02em}
+.hero h1 span{color:var(--yellow)}
+.hero p{margin:10px 0 0;font-size:17px;line-height:1.5;max-width:620px;font-weight:700;opacity:.95}
+.hero-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.stat{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:8px 14px;font-weight:900;font-size:14px}
+.stat b{color:var(--yellow)}
+
+/* MODE TABS */
+.modes{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 14px}
+@media(max-width:640px){.modes{grid-template-columns:repeat(2,1fr)}.mode-btn:last-child{grid-column:span 2}}
+.mode-btn{border:2px solid var(--border);background:var(--card);border-radius:18px;padding:14px 10px 12px;text-align:center;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.06)}
+.mode-btn .ico{font-size:28px;display:block;line-height:1}
+.mode-btn .lbl{font-family:"Fredoka";font-weight:700;font-size:16px;display:block;margin-top:6px}
+.mode-btn .sub{font-size:12.5px;color:var(--muted);font-weight:800;display:block;margin-top:2px;line-height:1.3}
+.mode-btn.active{border-color:var(--teal);background:var(--sky);outline:3px solid color-mix(in srgb, var(--teal) 25%, transparent)}
+.mode-btn:active{transform:translateY(2px)}
+
+/* CHIPS */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px}
+.chip{border:2px solid var(--border);background:var(--card);border-radius:999px;padding:8px 14px;font-weight:900;font-size:14px;cursor:pointer}
+.chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip small{opacity:.7;font-weight:800}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block;animation:pop .25s ease}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.panel.active{animation:none}}
+
+/* LEARN */
+.learn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.learn-card{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 3px 0 rgba(0,0,0,.04)}
+.learn-top{display:flex;align-items:flex-start;gap:12px}
+.code-badge{flex:0 0 auto;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-family:"Fredoka";font-weight:700;font-size:20px;color:#fff;background:var(--teal)}
+.code-badge.letter{background:var(--coral)}
+.code-badge.water{background:#2B7FFF}
+.code-badge.nature{background:#7A5A12;background:#B7791F}
+.learn-card h3{font-size:18px;padding-top:2px}
+.learn-card p{margin:8px 0 0;color:var(--muted);font-weight:700;font-size:14.5px;line-height:1.45}
+.cat-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:900;color:var(--teal);margin-top:10px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:8px 0 12px;flex-wrap:wrap}
+.section-head h2{font-size:26px}
+.section-head p{margin:4px 0 0;color:var(--muted);font-weight:700}
+
+/* FLASH + QUIZ SHARED */
+.stage{background:var(--card);border:1.5px solid var(--border);border-radius:24px;padding:22px;box-shadow:var(--shadow)}
+.progress{height:12px;background:var(--border);border-radius:999px;overflow:hidden;margin:14px 0}
+.progress i{display:block;height:100%;background:var(--teal);border-radius:999px;transition:width .3s ease}
+.progress-row{display:flex;justify-content:space-between;font-weight:900;font-size:14px;color:var(--muted)}
+.big-question{text-align:center;padding:10px 6px 4px}
+.big-code{display:inline-grid;place-items:center;min-width:92px;height:92px;padding:0 18px;border-radius:24px;background:var(--yellow);color:#231a00;font-family:"Fredoka";font-weight:700;font-size:44px;box-shadow:0 6px 0 #D99A00;margin:8px auto}
+.big-code.letter{background:var(--coral);color:#fff;box-shadow:0 6px 0 #C94A2E}
+.big-question h2{font-size:26px;margin-top:10px}
+.big-question p{color:var(--muted);font-weight:800;margin:8px auto 0;max-width:520px;line-height:1.5}
+.reveal-box{margin:16px auto 0;max-width:560px;background:var(--yellow-soft);border:2px dashed #D9A400;border-radius:16px;padding:16px;text-align:center}
+.reveal-box strong{font-family:"Fredoka";font-size:24px;display:block}
+.reveal-box span{font-weight:800;color:var(--muted)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.btn{border:none;border-radius:999px;padding:12px 20px;font-family:"Fredoka";font-weight:700;font-size:16px;cursor:pointer;min-height:48px}
+.btn-primary{background:var(--teal);color:#fff;box-shadow:0 4px 0 var(--teal-dark)}
+.btn-yellow{background:var(--yellow);color:#231a00;box-shadow:0 4px 0 #D99A00}
+.btn-ghost{background:var(--card);border:2px solid var(--border);color:var(--ink)}
+.btn-good{background:var(--green);color:#fff;box-shadow:0 4px 0 #1E7A38}
+.btn-bad{background:var(--card);border:2px solid var(--coral);color:var(--coral)}
+.btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* QUIZ OPTIONS */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+@media(max-width:560px){.options{grid-template-columns:1fr}}
+.opt{ text-align:left;background:var(--card);border:2px solid var(--border);border-radius:16px;padding:16px;font-weight:900;font-size:16px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.opt .letter{width:30px;height:30px;flex:0 0 auto;border-radius:999px;background:var(--sky);display:grid;place-items:center;font-size:13px}
+.opt.correct{border-color:var(--green);background:var(--green-soft)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.opt.dim{opacity:.55}
+.feedback{margin-top:14px;border-radius:16px;padding:14px 16px;font-weight:800;line-height:1.5;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-soft);border:1.5px solid var(--green)}
+.feedback.no{background:var(--red-soft);border:1.5px solid var(--red)}
+.scorebar{display:flex;gap:10px;flex-wrap:wrap}
+.score-pill{background:var(--card);border:1.5px solid var(--border);border-radius:999px;padding:8px 14px;font-weight:900;font-size:14px}
+.score-pill b{color:var(--teal)}
+
+/* TYPE */
+.type-input{width:100%;font-size:20px;font-weight:800;padding:16px;border:2.5px solid var(--border);border-radius:16px;background:var(--bg);color:var(--ink);text-align:center}
+.type-input:focus{outline:3px solid color-mix(in srgb, var(--teal) 35%, transparent);border-color:var(--teal)}
+
+/* RESULT */
+.result{text-align:center;padding:10px}
+.stars{font-size:44px;letter-spacing:6px;margin:10px 0}
+.result h2{font-size:32px}
+.result p{color:var(--muted);font-weight:800;line-height:1.6;max-width:520px;margin:10px auto}
+.mistakes{text-align:left;max-width:560px;margin:16px auto;background:var(--bg);border:1.5px solid var(--border);border-radius:16px;padding:14px 16px}
+.mistakes li{font-weight:800;margin:6px 0}
+/* MAP */
+.map-wrap{background:linear-gradient(180deg,#BFE6EF,#A8D8E8);border:1.5px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.04)}
+.map-wrap svg{display:block;width:100%;height:auto}
+.mk{cursor:pointer}
+.mk .hit{fill:transparent;stroke:none}
+.mk .dot{fill:#fff;stroke:var(--teal);stroke-width:2.5}
+.mk text{font-family:"Fredoka",sans-serif;font-weight:700;fill:var(--ink);text-anchor:middle;pointer-events:none}
+.mk.letter .dot{fill:var(--coral);stroke:#fff}
+.mk.letter text{fill:#fff}
+.mk.water .dot{fill:#2B7FFF;stroke:#fff}
+.mk.water text{fill:#fff}
+.mk.nature .dot{fill:#E9B949;stroke:#fff}
+.mk.sel .dot{stroke:var(--ink);stroke-width:4}
+.mk.found .dot{fill:var(--green);stroke:#fff}
+.mk.found text{fill:#fff}
+.mk.wrong .dot{fill:var(--red);stroke:#fff}
+.mk.wrong text{fill:#fff}
+.mk.reveal .dot{fill:var(--yellow);stroke:var(--ink);stroke-width:3.5}
+.map-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:13px;font-weight:800;color:var(--muted)}
+.map-legend span{display:inline-flex;align-items:center;gap:6px}
+.lg{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;font-size:11px;font-family:"Fredoka";font-weight:700;color:#fff;background:var(--teal)}
+.lg.letter{background:var(--coral)} .lg.water{background:#2B7FFF} .lg.nature{background:#E9B949;color:#231a00}
+.map-info{margin:12px auto 0;max-width:640px;background:var(--yellow-soft);border:2px dashed #D9A400;border-radius:16px;padding:14px 16px;text-align:center;font-weight:800;line-height:1.5}
+.map-info strong{font-family:"Fredoka";font-size:20px}
+.map-toggle{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+footer{margin-top:26px;text-align:center;color:var(--muted);font-weight:700;font-size:13.5px;line-height:1.6}
+.kbd-hint{font-size:13px;color:var(--muted);font-weight:800;text-align:center;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Topo oefenen <span>voor Borre</span> 🌍</h1>
+    <p>Leer alle plekken van je wereldkaart: werelddelen, landen, steden, oceanen, rivieren en bergen. De kaart uit de klas is nagebouwd — bekijk hem, klik op de nummers en letters, of speel het kaartspel. Kies hoe je wilt oefenen!</p>
+    <div class="hero-stats">
+      <span class="stat"><b>35</b> plekken in totaal</span>
+      <span class="stat"><b>A t/m G</b> werelddelen</span>
+      <span class="stat"><b>1 t/m 28</b> landen, water &amp; bergen</span>
+    </div>
+  </header>
+
+  <nav class="modes" aria-label="Oefenmanier kiezen">
+    <button class="mode-btn active" data-mode="learn"><span class="ico">📚</span><span class="lbl">Leren</span><span class="sub">Bekijk alles op een rij</span></button>
+    <button class="mode-btn" data-mode="flash"><span class="ico">🃏</span><span class="lbl">Flashcards</span><span class="sub">Raad &amp; draai om</span></button>
+    <button class="mode-btn" data-mode="quiz"><span class="ico">❓</span><span class="lbl">Quiz</span><span class="sub">Kies het goede antwoord</span></button>
+    <button class="mode-btn" data-mode="type"><span class="ico">✏️</span><span class="lbl">Zelf typen</span><span class="sub">Typ de naam zelf</span></button>
+    <button class="mode-btn" data-mode="map"><span class="ico">🗺️</span><span class="lbl">Kaartspel</span><span class="sub">Vind de plek op de kaart</span></button>
+  </nav>
+
+  <div class="chips" id="catChips" role="group" aria-label="Filter op soort"></div>
+
+  <!-- LEARN -->
+  <section class="panel active" id="panel-learn">
+    <div class="section-head"><div><h2>De kaart — net als in de klas</h2><p>Dit is de wereldkaart van je topo, nagebouwd. Klik op een letter of nummer om te zien welke plek het is. Israël (7) staat in het vergrote rondje, net als op de echte kaart!</p></div></div>
+    <div class="map-wrap" id="mapLearn"></div>
+    <div class="map-legend"><span><span class="lg letter">A</span> Werelddeel</span><span><span class="lg">1</span> Land</span><span><span class="lg water">~</span> Oceaan / rivier</span><span><span class="lg nature">▲</span> Gebergte / woestijn / regio</span></div>
+    <div class="map-info" id="learnMapInfo">👆 Klik op een letter of nummer op de kaart!</div>
+    <div class="section-head" style="margin-top:26px"><div><h2>Alle plekken op een rij</h2><p>Klik op een filter hierboven of scroll gewoon door. De tip helpt je de plek te onthouden.</p></div></div>
+    <div class="learn-grid" id="learnGrid"></div>
+  </section>
+
+  <!-- FLASH -->
+  <section class="panel" id="panel-flash">
+    <div class="stage">
+      <div class="progress-row"><span id="flashCount">Kaart 1 van 35</span><span id="flashKnown">✅ Al geweten: 0</span></div>
+      <div class="progress"><i id="flashBar" style="width:0%"></i></div>
+      <div class="big-question">
+        <div class="big-code" id="flashCode">1</div>
+        <h2 id="flashQ">Welke plek is dit op de kaart?</h2>
+        <p id="flashHint">Denk eerst zelf na. Draai daarna de kaart om.</p>
+        <div class="reveal-box" id="flashReveal" style="display:none"><strong id="flashAnswer"></strong><span id="flashFact"></span></div>
+      </div>
+      <div class="btn-row" id="flashBefore">
+        <button class="btn btn-yellow" id="btnReveal">👀 Draai om — laat zien!</button>
+        <button class="btn btn-ghost" id="btnShuffleFlash">🔀 Hussel kaarten</button>
+      </div>
+      <div class="btn-row" id="flashAfter" style="display:none">
+        <button class="btn btn-good" id="btnKnew">✅ Dat wist ik!</button>
+        <button class="btn btn-bad" id="btnDidnt">↩️ Nog een keer oefenen</button>
+      </div>
+      <p class="kbd-hint">Tip: zeg het antwoord hardop voordat je omdraait. Zo onthoud je het beter!</p>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel" id="panel-quiz">
+    <div class="stage" id="quizStage">
+      <div class="scorebar">
+        <span class="score-pill">Vraag <b id="quizNum">1 / 10</b></span>
+        <span class="score-pill">Goed: <b id="quizGood">0</b></span>
+        <span class="score-pill">Reeks: <b id="quizStreak">0 🔥</b></span>
+      </div>
+      <div class="progress"><i id="quizBar" style="width:0%"></i></div>
+      <div class="big-question">
+        <div class="big-code" id="quizCode">A</div>
+        <h2 id="quizQ">Welk werelddeel is A?</h2>
+        <p id="quizHint"></p>
+      </div>
+      <div class="options" id="quizOptions"></div>
+      <div class="feedback" id="quizFeedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnNextQ" style="display:none">Volgende vraag →</button>
+        <button class="btn btn-ghost" id="btnRestartQuiz">↺ Nieuwe quiz</button>
+      </div>
+    </div>
+    <div class="stage result" id="quizResult" style="display:none">
+      <div class="stars" id="quizStars">⭐⭐⭐</div>
+      <h2 id="quizResultTitle">Goed gedaan!</h2>
+      <p id="quizResultText"></p>
+      <div class="mistakes" id="quizMistakes" style="display:none"><strong>Deze kun je nog een keer bekijken:</strong><ul id="quizMistakesList"></ul></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="startQuiz()">Nog een quiz spelen</button><button class="btn btn-ghost" onclick="switchMode('learn')">Terug naar leren</button></div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section class="panel" id="panel-type">
+    <div class="stage" id="typeStage">
+      <div class="scorebar">
+        <span class="score-pill">Vraag <b id="typeNum">1 / 10</b></span>
+        <span class="score-pill">Goed: <b id="typeGood">0</b></span>
+      </div>
+      <div class="progress"><i id="typeBar" style="width:0%"></i></div>
+      <div class="big-question">
+        <div class="big-code" id="typeCode">7</div>
+        <h2>Hoe heet deze plek?</h2>
+        <p id="typeHint"></p>
+      </div>
+      <div style="max-width:520px;margin:18px auto 0">
+        <input class="type-input" id="typeInput" type="text" autocomplete="off" autocapitalize="words" placeholder="Typ hier de naam…" aria-label="Typ de naam van de plek">
+      </div>
+      <div class="feedback" id="typeFeedback" style="max-width:560px;margin-left:auto;margin-right:auto"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnCheckType">Controleer ✓</button>
+        <button class="btn btn-ghost" id="btnSkipType">Weet ik niet — laat zien</button>
+        <button class="btn btn-primary" id="btnNextType" style="display:none">Volgende →</button>
+      </div>
+      <p class="kbd-hint">Hoofdletters en accenten (zoals ë) hoeven niet perfect te zijn. Enter = controleren.</p>
+    </div>
+    <div class="stage result" id="typeResult" style="display:none">
+      <div class="stars" id="typeStars">⭐⭐⭐</div>
+      <h2 id="typeResultTitle">Knap gedaan!</h2>
+      <p id="typeResultText"></p>
+      <div class="mistakes" id="typeMistakes" style="display:none"><strong>Nog een keer oefenen:</strong><ul id="typeMistakesList"></ul></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="startType()">Opnieuw typen</button><button class="btn btn-ghost" onclick="switchMode('flash')">Flashcards doen</button></div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="panel" id="panel-map">
+    <div class="stage">
+      <div class="map-toggle" role="group" aria-label="Kaartmodus">
+        <button class="chip active" id="btnMapExplore">🔍 Ontdekken</button>
+        <button class="chip" id="btnMapPlay">🎯 Speel: vind de plek!</button>
+      </div>
+      <div id="mapExploreBox">
+        <div class="big-question" style="padding-top:0"><h2>Ontdek de kaart</h2><p>Klik op een letter of nummer en ontdek welke plek het is.</p></div>
+        <div class="map-wrap" id="mapMain"></div>
+        <div class="map-info" id="mainMapInfo">👆 Klik op een letter of nummer op de kaart!</div>
+      </div>
+      <div id="mapPlayBox" style="display:none">
+        <div class="scorebar">
+          <span class="score-pill">Vraag <b id="mqNum">1 / 10</b></span>
+          <span class="score-pill">Goed: <b id="mqGood">0</b></span>
+        </div>
+        <div class="progress"><i id="mqBar" style="width:0%"></i></div>
+        <div class="big-question" style="padding-top:0"><h2 id="mqQ">Waar ligt: …?</h2><p>Klik op de goede letter of het goede nummer op de kaart.</p></div>
+        <div class="map-wrap" id="mapPlay"></div>
+        <div class="feedback" id="mqFeedback" style="max-width:640px;margin-left:auto;margin-right:auto"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btnNextMq" style="display:none">Volgende →</button>
+          <button class="btn btn-ghost" id="btnRestartMq">↺ Opnieuw spelen</button>
+        </div>
+      </div>
+    </div>
+    <div class="stage result" id="mqResult" style="display:none">
+      <div class="stars" id="mqStars">⭐⭐⭐</div>
+      <h2 id="mqResultTitle">Goed gedaan!</h2>
+      <p id="mqResultText"></p>
+      <div class="mistakes" id="mqMistakes" style="display:none"><strong>Deze plekken kun je nog eens opzoeken op de kaart:</strong><ul id="mqMistakesList"></ul></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="startMapQuiz()">Nog een keer spelen</button><button class="btn btn-ghost" onclick="setMapSub('ontdek')">Kaart ontdekken</button></div>
+    </div>
+  </section>
+
+  <footer>Gebaseerd op de topo-kaart uit de klas: A t/m G en 1 t/m 28. Oefen elke dag een klein stukje — 10 vragen is al genoeg! Veel succes, Borre! 🍀</footer>
+</div>
+
+<script>
+var ITEMS = [
+ {code:"A",name:"Noord-Amerika",cat:"werelddelen",hint:"Het werelddeel boven Zuid-Amerika, met de Verenigde Staten, Mexico en Canada.",type:"letter"},
+ {code:"B",name:"Europa",cat:"werelddelen",hint:"Hier ligt Nederland! Klein werelddeel boven Afrika.",type:"letter"},
+ {code:"C",name:"Azië",cat:"werelddelen",hint:"Het grootste werelddeel. China, India en Japan liggen hier.",type:"letter"},
+ {code:"D",name:"Zuid-Amerika",cat:"werelddelen",hint:"Onder Noord-Amerika. Brazilië en Argentinië liggen hier.",type:"letter"},
+ {code:"E",name:"Afrika",cat:"werelddelen",hint:"Onder Europa. Hier vind je de Sahara en de Nijl.",type:"letter"},
+ {code:"F",name:"Oceanië",cat:"werelddelen",hint:"Australië en Nieuw-Zeeland, rechtsonder op de kaart.",type:"letter"},
+ {code:"G",name:"Antarctica",cat:"werelddelen",hint:"Helemaal onderaan de kaart, ijskoud rond de Zuidpool.",type:"letter"},
+ {code:"1",name:"Verenigde Staten",cat:"landen",hint:"Groot land in Noord-Amerika. Afkorting: VS of USA. New York ligt hier.",type:"land"},
+ {code:"2",name:"Mexico",cat:"landen",hint:"Land onder de Verenigde Staten, in Noord-Amerika.",type:"land"},
+ {code:"3",name:"Turkije",cat:"landen",hint:"Land dat half in Europa en half in Azië ligt, naast het Midden-Oosten.",type:"land"},
+ {code:"4",name:"China",cat:"landen",hint:"Groot land in Azië. De hoofdstad is Beijing.",type:"land"},
+ {code:"5",name:"Japan",cat:"landen",hint:"Eilandengroep ten oosten van China, in de Grote Oceaan.",type:"land"},
+ {code:"6",name:"India",cat:"landen",hint:"Groot land in Zuid-Azië. De rivier de Ganges stroomt erdoor.",type:"land"},
+ {code:"7",name:"Israël",cat:"landen",hint:"Klein land in het Midden-Oosten, aan de Middellandse Zee. Op de kaart staat het in een vergroot rondje!",type:"land"},
+ {code:"8",name:"Indonesië",cat:"landen",hint:"Land van heel veel eilanden, onder Azië en boven Australië.",type:"land"},
+ {code:"9",name:"Suriname",cat:"landen",hint:"Klein land boven Brazilië. Ze spreken er Nederlands!",type:"land"},
+ {code:"10",name:"Brazilië",cat:"landen",hint:"Grootste land van Zuid-Amerika. De Amazone stroomt erdoor.",type:"land"},
+ {code:"11",name:"Argentinië",cat:"landen",hint:"Lang land onderin Zuid-Amerika, met de Andes aan de westkant.",type:"land"},
+ {code:"12",name:"Marokko",cat:"landen",hint:"Land bovenin Afrika, tegenover Spanje.",type:"land"},
+ {code:"13",name:"Egypte",cat:"landen",hint:"Land in het noordoosten van Afrika, met de Nijl en de piramides.",type:"land"},
+ {code:"14",name:"Australië",cat:"landen",hint:"Land in Oceanië dat ook een eiland is. Kangoeroes!",type:"land"},
+ {code:"15",name:"New York",cat:"steden",hint:"Beroemde stad aan de oostkust van de Verenigde Staten.",type:"stad"},
+ {code:"16",name:"Beijing (Peking)",cat:"steden",hint:"Hoofdstad van China. Peking is de oude naam.",type:"stad",accept:["beijing","peking","beijing peking"]},
+ {code:"17",name:"Noordelijke IJszee",cat:"water",hint:"Zee helemaal bovenaan de kaart, rond de Noordpool. Veel ijs!",type:"water"},
+ {code:"18",name:"Atlantische Oceaan",cat:"water",hint:"Oceaan tussen Amerika aan de ene kant en Europa en Afrika aan de andere kant.",type:"water"},
+ {code:"19",name:"Ganges",cat:"water",hint:"Belangrijke, heilige rivier in India.",type:"water"},
+ {code:"20",name:"Grote / Stille Oceaan",cat:"water",hint:"De grootste oceaan van de wereld. Staat op de kaart links én rechts!",type:"water",accept:["grote oceaan","stille oceaan","grote stille oceaan","grote / stille oceaan","pacific","pacifische oceaan"]},
+ {code:"21",name:"Amazone",cat:"water",hint:"Enorme rivier door Brazilië en het Amazoneregenwoud.",type:"water"},
+ {code:"22",name:"Nijl",cat:"water",hint:"Hele lange rivier die door Egypte naar de Middellandse Zee stroomt.",type:"water"},
+ {code:"23",name:"Indische Oceaan",cat:"water",hint:"Oceaan tussen Afrika, Azië en Australië in, onder India.",type:"water"},
+ {code:"24",name:"Rocky Mountains",cat:"natuur",hint:"Gebergte in het westen van Noord-Amerika.",type:"natuur"},
+ {code:"25",name:"Himalaya",cat:"natuur",hint:"Hoogste gebergte ter wereld, in Azië. Hier staat de Mount Everest.",type:"natuur"},
+ {code:"26",name:"Andes",cat:"natuur",hint:"Lang gebergte langs de hele westkust van Zuid-Amerika.",type:"natuur"},
+ {code:"27",name:"Sahara",cat:"natuur",hint:"De grootste woestijn ter wereld, bovenin Afrika. Heel veel zand!",type:"natuur"},
+ {code:"28",name:"Midden-Oosten",cat:"natuur",hint:"Regio waar Europa, Azië en Afrika bij elkaar komen. Israël ligt erin.",type:"natuur"}
+];
+var CATS = [
+ {id:"all",label:"Alles"},
+ {id:"werelddelen",label:"Werelddelen A–G"},
+ {id:"landen",label:"Landen"},
+ {id:"steden",label:"Steden"},
+ {id:"water",label:"Oceanen & rivieren"},
+ {id:"natuur",label:"Bergen, woestijn & regio"}
+];
+var CAT_LABEL = {werelddelen:"Werelddeel",landen:"Land",steden:"Stad",water:"Water",natuur:"Gebergte / woestijn / regio"};
+var currentCat = "all";
+var currentMode = "learn";
+
+function filtered(){ return currentCat==="all" ? ITEMS.slice() : ITEMS.filter(function(i){return i.cat===currentCat;}); }
+function shuffle(a){ var arr=a.slice(); for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)); var t=arr[i];arr[i]=arr[j];arr[j]=t;} return arr; }
+function normalize(s){ return (s||"").toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
+function isCorrectType(item, val){
+  var v = normalize(val); if(!v) return false;
+  var candidates = [item.name];
+  if(item.accept) candidates = candidates.concat(item.accept);
+  // also accept name without parentheses part and the part inside parentheses
+  var base = item.name.replace(/\(.*\)/,"").trim(); candidates.push(base);
+  var inside = item.name.match(/\((.*)\)/); if(inside) candidates.push(inside[1]);
+  for(var i=0;i<candidates.length;i++){ if(normalize(candidates[i])===v) return true; }
+  return false;
+}
+
+/* CHIPS */
+var chipsEl = document.getElementById("catChips");
+function renderChips(){
+  chipsEl.innerHTML = CATS.map(function(c){
+    var n = c.id==="all" ? ITEMS.length : ITEMS.filter(function(i){return i.cat===c.id;}).length;
+    return '<button class="chip'+(currentCat===c.id?" active":"")+'" data-cat="'+c.id+'">'+c.label+' <small>'+n+'</small></button>';
+  }).join("");
+  chipsEl.querySelectorAll(".chip").forEach(function(b){ b.addEventListener("click", function(){ currentCat=b.dataset.cat; renderChips(); renderLearn(); resetFlash(); startQuiz(); startType(); renderMaps(); if(currentMode==="map"&&mapSub==="speel") startMapQuiz(); }); });
+}
+
+/* LEARN */
+function badgeClass(item){ if(item.type==="letter") return "letter"; if(item.cat==="water") return "water"; if(item.cat==="natuur") return "nature"; return ""; }
+function renderLearn(){
+  var list = filtered();
+  document.getElementById("learnGrid").innerHTML = list.map(function(it){
+    return '<article class="learn-card"><div class="learn-top"><div class="code-badge '+badgeClass(it)+'">'+it.code+'</div><h3>'+it.name+'</h3></div><p>'+it.hint+'</p><div class="cat-label">'+CAT_LABEL[it.cat]+' · op de kaart: '+it.code+'</div></article>';
+  }).join("");
+}
+
+/* MODE SWITCH */
+function switchMode(m){
+  currentMode=m;
+  document.querySelectorAll(".mode-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.mode===m); });
+  document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("active"); });
+  document.getElementById("panel-"+m).classList.add("active");
+  document.getElementById("catChips").style.display = (m==="learn") ? "flex" : "flex";
+  if(m==="flash") resetFlash();
+  if(m==="quiz") startQuiz();
+  if(m==="type") startType();
+  if(m==="map"){ renderMaps(); if(mapSub==="speel") startMapQuiz(); }
+}
+document.querySelectorAll(".mode-btn").forEach(function(b){ b.addEventListener("click", function(){ switchMode(b.dataset.mode); }); });
+
+/* FLASHCARDS */
+var flashDeck=[], flashIdx=0, flashKnownCount=0, flashRevealed=false;
+function resetFlash(){ flashDeck = shuffle(filtered()); flashIdx=0; flashKnownCount=0; showFlash(); }
+function showFlash(){
+  flashRevealed=false;
+  if(!flashDeck.length){ flashDeck = shuffle(filtered()); flashIdx=0; }
+  if(flashIdx>=flashDeck.length){
+    document.getElementById("flashCode").textContent="🎉";
+    document.getElementById("flashQ").textContent="Klaar! Je hebt alle kaarten gehad.";
+    document.getElementById("flashHint").textContent="Je wist er "+flashKnownCount+" in één keer. Hussel en speel nog een ronde!";
+    document.getElementById("flashReveal").style.display="none";
+    document.getElementById("flashBefore").style.display="flex";
+    document.getElementById("flashAfter").style.display="none";
+    document.getElementById("flashCount").textContent="Ronde klaar";
+    document.getElementById("flashBar").style.width="100%";
+    document.getElementById("flashKnown").textContent="✅ Al geweten: "+flashKnownCount;
+    return;
+  }
+  var it = flashDeck[flashIdx];
+  var codeEl=document.getElementById("flashCode");
+  codeEl.textContent=it.code; codeEl.className="big-code"+(it.type==="letter"?" letter":"");
+  document.getElementById("flashQ").textContent = it.type==="letter" ? "Welk werelddeel is "+it.code+"?" : "Welke plek is nummer "+it.code+" op de kaart?";
+  document.getElementById("flashHint").textContent="Denk eerst zelf na, zeg het hardop, draai dan om.";
+  document.getElementById("flashReveal").style.display="none";
+  document.getElementById("flashBefore").style.display="flex";
+  document.getElementById("flashAfter").style.display="none";
+  document.getElementById("flashCount").textContent="Kaart "+(flashIdx+1)+" van "+flashDeck.length+(currentCat!=="all"?" · "+CATS.find(function(c){return c.id===currentCat;}).label:"");
+  document.getElementById("flashKnown").textContent="✅ Al geweten: "+flashKnownCount;
+  document.getElementById("flashBar").style.width=Math.round((flashIdx/flashDeck.length)*100)+"%";
+}
+document.getElementById("btnReveal").addEventListener("click", function(){
+  if(flashIdx>=flashDeck.length){ resetFlash(); return; }
+  var it=flashDeck[flashIdx]; flashRevealed=true;
+  document.getElementById("flashAnswer").textContent=it.code+" = "+it.name;
+  document.getElementById("flashFact").textContent=it.hint;
+  document.getElementById("flashReveal").style.display="block";
+  document.getElementById("flashBefore").style.display="none";
+  document.getElementById("flashAfter").style.display="flex";
+});
+document.getElementById("btnKnew").addEventListener("click", function(){ flashKnownCount++; flashIdx++; showFlash(); });
+document.getElementById("btnDidnt").addEventListener("click", function(){ var it=flashDeck[flashIdx]; flashDeck.push(it); flashIdx++; showFlash(); });
+document.getElementById("btnShuffleFlash").addEventListener("click", resetFlash);
+
+/* QUIZ */
+var quizList=[], quizIdx=0, quizGood=0, quizStreak=0, quizMistakes=[], quizAnswered=false, QUIZ_LEN=10;
+function startQuiz(){
+  var pool = filtered(); quizList = shuffle(pool).slice(0, Math.min(QUIZ_LEN, pool.length));
+  quizIdx=0; quizGood=0; quizStreak=0; quizMistakes=[];
+  document.getElementById("quizStage").style.display="block";
+  document.getElementById("quizResult").style.display="none";
+  showQuizQ();
+}
+function showQuizQ(){
+  quizAnswered=false;
+  if(quizIdx>=quizList.length){ finishQuiz(); return; }
+  var it=quizList[quizIdx];
+  document.getElementById("quizNum").textContent=(quizIdx+1)+" / "+quizList.length;
+  document.getElementById("quizGood").textContent=quizGood;
+  document.getElementById("quizStreak").textContent=quizStreak+" 🔥";
+  document.getElementById("quizBar").style.width=Math.round((quizIdx/quizList.length)*100)+"%";
+  var codeEl=document.getElementById("quizCode"); codeEl.textContent=it.code; codeEl.className="big-code"+(it.type==="letter"?" letter":"");
+  // Alternate direction: even = code -> name, odd = name -> code description via hint? Keep code->name mostly, sometimes reverse with options as codes
+  var reverse = (quizIdx%3===2);
+  var fb=document.getElementById("quizFeedback"); fb.className="feedback"; fb.textContent="";
+  document.getElementById("btnNextQ").style.display="none";
+  var optsEl=document.getElementById("quizOptions");
+  if(!reverse){
+    document.getElementById("quizQ").textContent = it.type==="letter" ? "Welk werelddeel hoort bij letter "+it.code+"?" : "Welke plek hoort bij nummer "+it.code+"?";
+    document.getElementById("quizHint").textContent = "Kies het goede antwoord. Tip verstopt: denk aan de plek op de kaart!";
+    var distract = shuffle(ITEMS.filter(function(x){return x.code!==it.code && x.cat===it.cat;})).slice(0,3);
+    if(distract.length<3) distract = distract.concat(shuffle(ITEMS.filter(function(x){return x.code!==it.code && distract.indexOf(x)===-1;})).slice(0,3-distract.length));
+    var options = shuffle([it].concat(distract));
+    optsEl.innerHTML = options.map(function(o,i){
+      return '<button class="opt" data-code="'+o.code+'"><span class="letter">'+["A","B","C","D"][i]+'</span>'+o.name+'</button>';
+    }).join("");
+    optsEl.querySelectorAll(".opt").forEach(function(btn){ btn.addEventListener("click", function(){ answerQuiz(btn, it, btn.dataset.code===it.code); }); });
+  } else {
+    document.getElementById("quizQ").textContent="Bij welk nummer / welke letter hoort: "+it.name+"?";
+    document.getElementById("quizHint").textContent=it.hint;
+    var distract2 = shuffle(ITEMS.filter(function(x){return x.code!==it.code && x.cat===it.cat;})).slice(0,3);
+    if(distract2.length<3) distract2 = distract2.concat(shuffle(ITEMS.filter(function(x){return x.code!==it.code && distract2.indexOf(x)===-1;})).slice(0,3-distract2.length));
+    var options2 = shuffle([it].concat(distract2));
+    optsEl.innerHTML = options2.map(function(o,i){
+      return '<button class="opt" data-code="'+o.code+'"><span class="letter">'+["A","B","C","D"][i]+'</span>'+(isNaN(o.code)?"Letter ":"Nummer ")+o.code+'</button>';
+    }).join("");
+    optsEl.querySelectorAll(".opt").forEach(function(btn){ btn.addEventListener("click", function(){ answerQuiz(btn, it, btn.dataset.code===it.code); }); });
+  }
+}
+function answerQuiz(btn, item, correct){
+  if(quizAnswered) return; quizAnswered=true;
+  var opts=document.querySelectorAll("#quizOptions .opt");
+  opts.forEach(function(o){ if(o.dataset.code===item.code) o.classList.add("correct"); else if(o===btn && !correct) o.classList.add("wrong"); else o.classList.add("dim"); o.disabled=true; });
+  var fb=document.getElementById("quizFeedback");
+  if(correct){ quizGood++; quizStreak++; fb.className="feedback show ok"; fb.innerHTML="🎉 <strong>Goed zo!</strong> "+item.code+" is inderdaad <strong>"+item.name+"</strong>. "+item.hint; }
+  else { quizStreak=0; quizMistakes.push(item); fb.className="feedback show no"; fb.innerHTML="❌ <strong>Niet helemaal.</strong> "+item.code+" is <strong>"+item.name+"</strong>. "+item.hint; }
+  document.getElementById("quizGood").textContent=quizGood;
+  document.getElementById("quizStreak").textContent=quizStreak+" 🔥";
+  document.getElementById("btnNextQ").style.display="inline-block";
+  document.getElementById("btnNextQ").textContent = quizIdx>=quizList.length-1 ? "Bekijk je score →" : "Volgende vraag →";
+}
+document.getElementById("btnNextQ").addEventListener("click", function(){ quizIdx++; showQuizQ(); });
+document.getElementById("btnRestartQuiz").addEventListener("click", startQuiz);
+function starsFor(good,total){ var r=total?good/total:0; if(r>=0.9) return "⭐⭐⭐"; if(r>=0.6) return "⭐⭐☆"; if(r>0) return "⭐☆☆"; return "☆☆☆"; }
+function finishQuiz(){
+  document.getElementById("quizStage").style.display="none";
+  var res=document.getElementById("quizResult"); res.style.display="block";
+  document.getElementById("quizStars").textContent=starsFor(quizGood, quizList.length);
+  var title = quizGood===quizList.length ? "Alles goed! Topo-topper! 🏆" : quizGood>=quizList.length*0.7 ? "Goed gedaan!" : quizGood>=quizList.length*0.4 ? "Lekker bezig — blijf oefenen!" : "Goed geprobeerd! Even leren en opnieuw.";
+  document.getElementById("quizResultTitle").textContent=title;
+  document.getElementById("quizResultText").textContent="Je had "+quizGood+" van de "+quizList.length+" goed.";
+  var box=document.getElementById("quizMistakes");
+  if(quizMistakes.length){ box.style.display="block"; document.getElementById("quizMistakesList").innerHTML=quizMistakes.map(function(m){return "<li>"+m.code+" — "+m.name+": "+m.hint+"</li>";}).join(""); } else box.style.display="none";
+}
+
+/* TYPE */
+var typeList=[], typeIdx=0, typeGood=0, typeMistakes=[], typeDone=false;
+function startType(){
+  var pool=filtered(); typeList=shuffle(pool).slice(0, Math.min(10, pool.length));
+  typeIdx=0; typeGood=0; typeMistakes=[];
+  document.getElementById("typeStage").style.display="block";
+  document.getElementById("typeResult").style.display="none";
+  showTypeQ();
+}
+function showTypeQ(){
+  typeDone=false;
+  if(typeIdx>=typeList.length){ finishType(); return; }
+  var it=typeList[typeIdx];
+  document.getElementById("typeNum").textContent=(typeIdx+1)+" / "+typeList.length;
+  document.getElementById("typeGood").textContent=typeGood;
+  document.getElementById("typeBar").style.width=Math.round((typeIdx/typeList.length)*100)+"%";
+  var codeEl=document.getElementById("typeCode"); codeEl.textContent=it.code; codeEl.className="big-code"+(it.type==="letter"?" letter":"");
+  document.getElementById("typeHint").textContent="💡 Tip: "+it.hint;
+  var inp=document.getElementById("typeInput"); inp.value=""; inp.disabled=false; inp.focus();
+  var fb=document.getElementById("typeFeedback"); fb.className="feedback";
+  document.getElementById("btnCheckType").style.display="inline-block";
+  document.getElementById("btnSkipType").style.display="inline-block";
+  document.getElementById("btnNextType").style.display="none";
+}
+function resolveType(revealOnly){
+  if(typeDone) return;
+  var it=typeList[typeIdx]; var val=document.getElementById("typeInput").value;
+  var ok = !revealOnly && isCorrectType(it, val);
+  typeDone=true;
+  var fb=document.getElementById("typeFeedback");
+  if(ok){ typeGood++; fb.className="feedback show ok"; fb.innerHTML="🎉 <strong>Precies goed!</strong> "+it.code+" = "+it.name+"."; }
+  else { typeMistakes.push(it); fb.className="feedback show no"; fb.innerHTML=(revealOnly?"Het goede antwoord is: ":"Helaas, het goede antwoord is: ")+"<strong>"+it.name+"</strong> ("+it.code+"). "+it.hint; }
+  document.getElementById("typeGood").textContent=typeGood;
+  document.getElementById("typeInput").disabled=true;
+  document.getElementById("btnCheckType").style.display="none";
+  document.getElementById("btnSkipType").style.display="none";
+  var nxt=document.getElementById("btnNextType"); nxt.style.display="inline-block"; nxt.textContent= typeIdx>=typeList.length-1 ? "Bekijk je score →" : "Volgende →";
+}
+document.getElementById("btnCheckType").addEventListener("click", function(){ resolveType(false); });
+document.getElementById("btnSkipType").addEventListener("click", function(){ resolveType(true); });
+document.getElementById("btnNextType").addEventListener("click", function(){ typeIdx++; showTypeQ(); });
+document.getElementById("typeInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); if(!typeDone) resolveType(false); else { typeIdx++; showTypeQ(); } } });
+function finishType(){
+  document.getElementById("typeStage").style.display="none";
+  var res=document.getElementById("typeResult"); res.style.display="block";
+  document.getElementById("typeStars").textContent=starsFor(typeGood, typeList.length);
+  document.getElementById("typeResultTitle").textContent= typeGood===typeList.length ? "Alles goed getypt! 🏆" : typeGood>=typeList.length*0.7 ? "Knap gedaan!" : "Goed geoefend!";
+  document.getElementById("typeResultText").textContent="Je typte "+typeGood+" van de "+typeList.length+" namen helemaal goed.";
+  var box=document.getElementById("typeMistakes");
+  if(typeMistakes.length){ box.style.display="block"; document.getElementById("typeMistakesList").innerHTML=typeMistakes.map(function(m){return "<li>"+m.code+" — "+m.name+"</li>";}).join(""); } else box.style.display="none";
+}
+
+/* MAP — de kaart uit de klas, nagebouwd als SVG */
+var POS = {
+ "A":[222,125],"B":[542,105],"C":[760,120],"D":[330,330],"E":[548,262],"F":[946,404],"G":[500,508],
+ "1":[228,148],"2":[214,196],"3":[600,146],"4":[795,168],"5":[888,148],"6":[716,206],"7":[600,172],
+ "8":[800,300],"9":[346,256],"10":[360,300],"11":[322,382],"12":[484,168],"13":[584,184],"14":[868,344],
+ "15":[296,140],"16":[824,142],"17":[500,20],"18":[415,222],"19":[746,196],"20":[80,268],
+ "21":[330,282],"22":[590,208],"23":[706,332],"24":[188,132],"25":[736,180],"26":[308,332],
+ "27":[530,200],"28":[628,180]
+};
+var POS_EXTRA = { "20":[[972,306]] };
+var MAP_ART = ''
++ '<path d="M55 150 L70 105 L105 70 L165 45 L235 38 L295 52 L330 78 L322 112 L300 128 L292 152 L268 168 L250 178 L238 205 L246 232 L228 252 L214 224 L196 205 L160 198 L118 182 L78 172 Z" fill="#F2C9C4"/>'
++ '<path d="M318 30 L368 22 L388 44 L366 66 L326 60 Z" fill="#F2C9C4"/>'
++ '<path d="M272 268 L312 246 L352 252 L378 280 L380 326 L358 384 L330 438 L308 458 L294 402 L278 344 Z" fill="#DCE8A8"/>'
++ '<path d="M462 128 L472 92 L505 62 L552 52 L596 66 L612 94 L592 118 L566 128 L552 112 L536 136 L514 148 L500 128 L478 146 Z" fill="#CFE3A0"/>'
++ '<path d="M466 196 L492 168 L548 158 L600 172 L626 204 L630 262 L606 326 L566 366 L528 352 L494 306 L472 252 Z" fill="#F0DFA0"/>'
++ '<path d="M600 92 L668 52 L782 40 L892 52 L952 88 L962 138 L922 168 L884 158 L872 196 L842 238 L812 214 L786 252 L748 262 L724 224 L688 214 L664 178 L632 168 L606 132 Z" fill="#EFEFC0"/>'
++ '<path d="M688 196 L736 192 L728 252 L700 262 L684 226 Z" fill="#EFEFC0"/>'
++ '<path d="M800 240 L826 238 L818 286 L796 292 L792 258 Z" fill="#EFEFC0"/>'
++ '<ellipse cx="772" cy="302" rx="16" ry="6" fill="#EFEFC0"/><ellipse cx="818" cy="308" rx="18" ry="6" fill="#EFEFC0"/><ellipse cx="866" cy="300" rx="14" ry="5" fill="#EFEFC0"/>'
++ '<ellipse cx="906" cy="140" rx="16" ry="9" fill="#EFEFC0" transform="rotate(35 906 140)"/>'
++ '<path d="M796 316 L852 292 L916 300 L940 332 L918 376 L856 392 L806 366 Z" fill="#DCE8A8"/>'
++ '<ellipse cx="958" cy="404" rx="14" ry="7" fill="#DCE8A8" transform="rotate(40 958 404)"/>'
++ '<ellipse cx="535" cy="205" rx="72" ry="27" fill="#E4B95B" opacity=".55"/>'
++ '<ellipse cx="192" cy="130" rx="36" ry="12" fill="#E4B95B" opacity=".7" transform="rotate(12 192 130)"/>'
++ '<ellipse cx="310" cy="332" rx="11" ry="56" fill="#E4B95B" opacity=".7" transform="rotate(6 310 332)"/>'
++ '<ellipse cx="736" cy="180" rx="30" ry="10" fill="#E4B95B" opacity=".7"/>'
++ '<path d="M598 148 L662 150 L664 196 L604 200 L596 174 Z" fill="none" stroke="#8E6FB8" stroke-width="2.5" stroke-dasharray="6 4"/>'
++ '<path d="M590 252 L586 212 L584 186" fill="none" stroke="#2B7FFF" stroke-width="3" stroke-linecap="round"/>'
++ '<path d="M300 286 L338 280 L368 289" fill="none" stroke="#2B7FFF" stroke-width="3" stroke-linecap="round"/>'
++ '<path d="M722 202 L744 197" fill="none" stroke="#2B7FFF" stroke-width="3" stroke-linecap="round"/>'
++ '<path d="M0 486 Q120 470 260 484 T520 482 T780 484 T1000 480 L1000 560 L0 560 Z" fill="#FFFFFF"/>'
++ '<line x1="600" y1="176" x2="472" y2="288" stroke="#5B6B64" stroke-width="1.8"/>'
++ '<circle cx="448" cy="308" r="30" fill="#F7F3DF" stroke="#5B6B64" stroke-width="2"/>'
++ '<path d="M428 308 L442 296 L452 306 L466 300 L462 318 L440 320 L430 316 Z" fill="#EFEFC0" stroke="#B9B98A" stroke-width="1.2"/>'
++ '<text x="448" y="342" font-family="Fredoka" font-weight="700" font-size="15" fill="#1A2E28" text-anchor="middle">7</text>';
+function markerSVG(it, scope){
+  var p = POS[it.code]; if(!p) return "";
+  var cls = "mk" + (it.type==="letter" ? " letter" : it.cat==="water" ? " water" : it.cat==="natuur" ? " nature" : "");
+  var r = it.type==="letter" ? 16 : 14, fs = it.type==="letter" ? 15 : 13;
+  var s = '<g class="'+cls+'" data-code="'+it.code+'" data-scope="'+scope+'"><circle class="hit" cx="'+p[0]+'" cy="'+p[1]+'" r="25"/><circle class="dot" cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'"/><text x="'+p[0]+'" y="'+(p[1]+fs/2-1)+'">'+it.code+'</text></g>';
+  if(POS_EXTRA[it.code]){ POS_EXTRA[it.code].forEach(function(q){ s += '<g class="'+cls+'" data-code="'+it.code+'" data-scope="'+scope+'"><circle class="hit" cx="'+q[0]+'" cy="'+q[1]+'" r="25"/><circle class="dot" cx="'+q[0]+'" cy="'+q[1]+'" r="'+r+'"/><text x="'+q[0]+'" y="'+(q[1]+fs/2-1)+'">'+it.code+'</text></g>'; }); }
+  return s;
+}
+function mapSVG(scope){
+  return '<svg viewBox="0 0 1000 560" role="img" aria-label="Wereldkaart met alle topo-plekken"><rect x="0" y="0" width="1000" height="560" fill="#A8D8E8"/>' + MAP_ART + ITEMS.map(function(it){ return markerSVG(it, scope); }).join("") + '</svg>';
+}
+function renderMaps(){
+  document.getElementById("mapLearn").innerHTML = mapSVG("learn");
+  document.getElementById("mapMain").innerHTML = mapSVG("main");
+  document.getElementById("mapPlay").innerHTML = mapSVG("play");
+}
+function mapInfoHTML(it){ return "<strong>"+it.code+" = "+it.name+"</strong><br>"+it.hint; }
+document.addEventListener("click", function(e){
+  var t = e.target; if(!t || typeof t.closest !== "function") return;
+  var g = t.closest(".mk"); if(!g) return;
+  var code = g.dataset.code, scope = g.dataset.scope;
+  var it = ITEMS.filter(function(x){ return x.code===code; })[0]; if(!it) return;
+  if(scope==="play"){ answerMapQuiz(code); return; }
+  var wrap = g.closest(".map-wrap");
+  wrap.querySelectorAll(".mk").forEach(function(m){ m.classList.remove("sel"); });
+  wrap.querySelectorAll('.mk[data-code="'+code+'"]').forEach(function(m){ m.classList.add("sel"); });
+  document.getElementById(scope==="learn" ? "learnMapInfo" : "mainMapInfo").innerHTML = mapInfoHTML(it);
+});
+
+/* MAP SUB-MODE + MAP QUIZ */
+var mapSub = "ontdek";
+function setMapSub(sub){
+  mapSub = sub;
+  document.getElementById("btnMapExplore").classList.toggle("active", sub==="ontdek");
+  document.getElementById("btnMapPlay").classList.toggle("active", sub==="speel");
+  document.getElementById("mapExploreBox").style.display = sub==="ontdek" ? "block" : "none";
+  document.getElementById("mapPlayBox").style.display = sub==="speel" ? "block" : "none";
+  document.getElementById("mqResult").style.display = "none";
+  document.querySelector("#panel-map .stage").style.display = "block";
+  renderMaps();
+  if(sub==="speel") startMapQuiz();
+}
+document.getElementById("btnMapExplore").addEventListener("click", function(){ setMapSub("ontdek"); });
+document.getElementById("btnMapPlay").addEventListener("click", function(){ setMapSub("speel"); });
+
+var mqList=[], mqIdx=0, mqGood=0, mqMistakes=[], mqLock=false;
+function startMapQuiz(){
+  var pool = filtered(); mqList = shuffle(pool).slice(0, Math.min(10, pool.length));
+  mqIdx=0; mqGood=0; mqMistakes=[];
+  document.querySelector("#panel-map .stage").style.display="block";
+  document.getElementById("mqResult").style.display="none";
+  document.getElementById("mapPlayBox").style.display="block";
+  renderMaps(); showMapQ();
+}
+function showMapQ(){
+  mqLock=false;
+  if(mqIdx>=mqList.length){ finishMapQuiz(); return; }
+  var it = mqList[mqIdx];
+  document.getElementById("mqNum").textContent = (mqIdx+1)+" / "+mqList.length;
+  document.getElementById("mqGood").textContent = mqGood;
+  document.getElementById("mqBar").style.width = Math.round((mqIdx/mqList.length)*100)+"%";
+  document.getElementById("mqQ").textContent = "Waar ligt: "+it.name+"?";
+  var fb=document.getElementById("mqFeedback"); fb.className="feedback"; fb.textContent="";
+  document.getElementById("btnNextMq").style.display="none";
+  renderMaps();
+}
+function answerMapQuiz(code){
+  if(mapSub!=="speel" || mqLock) return;
+  var it = mqList[mqIdx]; if(!it) return;
+  mqLock = true;
+  var wrap = document.getElementById("mapPlay");
+  var fb = document.getElementById("mqFeedback");
+  if(code===it.code){
+    mqGood++;
+    wrap.querySelectorAll('.mk[data-code="'+code+'"]').forEach(function(m){ m.classList.add("found"); });
+    fb.className="feedback show ok"; fb.innerHTML="🎉 <strong>Goed gevonden!</strong> "+it.name+" is inderdaad "+(isNaN(it.code)?"letter ":"nummer ")+it.code+". "+it.hint;
+  } else {
+    mqMistakes.push(it);
+    wrap.querySelectorAll('.mk[data-code="'+code+'"]').forEach(function(m){ m.classList.add("wrong"); });
+    wrap.querySelectorAll('.mk[data-code="'+it.code+'"]').forEach(function(m){ m.classList.add("reveal"); });
+    var clicked = ITEMS.filter(function(x){ return x.code===code; })[0];
+    fb.className="feedback show no"; fb.innerHTML="❌ Dat was <strong>"+clicked.name+"</strong> ("+code+"). <strong>"+it.name+"</strong> is "+(isNaN(it.code)?"letter ":"nummer ")+it.code+" — kijk, hij licht geel op! "+it.hint;
+  }
+  document.getElementById("mqGood").textContent = mqGood;
+  var nxt=document.getElementById("btnNextMq"); nxt.style.display="inline-block";
+  nxt.textContent = mqIdx>=mqList.length-1 ? "Bekijk je score →" : "Volgende →";
+}
+document.getElementById("btnNextMq").addEventListener("click", function(){ mqIdx++; showMapQ(); });
+document.getElementById("btnRestartMq").addEventListener("click", startMapQuiz);
+function finishMapQuiz(){
+  document.querySelector("#panel-map .stage").style.display="none";
+  var res=document.getElementById("mqResult"); res.style.display="block";
+  document.getElementById("mqStars").textContent = starsFor(mqGood, mqList.length);
+  document.getElementById("mqResultTitle").textContent = mqGood===mqList.length ? "Alles gevonden! Kaartkampioen! 🏆" : mqGood>=mqList.length*0.7 ? "Goed gedaan!" : "Goed geoefend — kijk nog eens op de kaart!";
+  document.getElementById("mqResultText").textContent = "Je vond "+mqGood+" van de "+mqList.length+" plekken op de kaart.";
+  var box=document.getElementById("mqMistakes");
+  if(mqMistakes.length){ box.style.display="block"; document.getElementById("mqMistakesList").innerHTML = mqMistakes.map(function(m){ return "<li>"+m.code+" — "+m.name+": "+m.hint+"</li>"; }).join(""); } else box.style.display="none";
+}
+
+/* INIT */
+renderChips(); renderLearn(); resetFlash(); renderMaps();
+</script>
+</body>
+</html>
